@@ -1,0 +1,744 @@
+/* iPad 12.9寸版样式 - 苹果风格毛玻璃设计（灰色调） */
+
+:root {
+    --primary-color: #5B9BD5;
+    --secondary-color: #7B8FA3;
+    --success-color: #6C9A8B;
+    --warning-color: #D4A574;
+    --danger-color: #C85A54;
+    --bg-primary: rgba(245, 245, 247, 0.45);
+    --bg-secondary: rgba(255, 255, 255, 0.35);
+    --bg-tertiary: rgba(255, 255, 255, 0.2);
+    --text-primary: #1C1C1E;
+    --text-secondary: #48484A;
+    --text-tertiary: #8E8E93;
+    --border-color: rgba(60, 60, 67, 0.12);
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.16);
+    --button-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+    background: linear-gradient(135deg, #4A5568 0%, #A0AEC0 100%);
+    min-height: 100vh;
+    padding: 20px;
+    font-size: 17px;
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* 毛玻璃效果卡片 */
+.glass-card {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(40px) saturate(120%);
+    -webkit-backdrop-filter: blur(40px) saturate(120%);
+    border-radius: 22px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 18px;
+    padding: 20px;
+}
+
+/* 页面容器 */
+.page-container {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(40px) saturate(120%);
+    -webkit-backdrop-filter: blur(40px) saturate(120%);
+    border-radius: 26px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    padding: 22px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-color);
+    letter-spacing: -0.5px;
+}
+
+.delete-page-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--button-shadow);
+    transition: all 0.2s ease;
+}
+
+.delete-page-btn:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
+}
+
+.delete-page-btn:active {
+    transform: scale(0.93);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* 区块标题 */
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
+}
+
+/* EP图片上传区域 */
+.ep-upload-section {
+    margin-bottom: 20px;
+}
+
+.upload-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--button-shadow);
+    transition: all 0.2s ease;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.upload-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.delete-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(200, 90, 84, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    color: white;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--button-shadow);
+    transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+    transform: scale(1.08);
+    box-shadow: var(--shadow-md);
+}
+
+.delete-btn:active {
+    transform: scale(0.92);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* 纱线项 */
+.yarn-item {
+    background: var(--bg-tertiary);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 20px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   Q版可爱纱线一行布局 - iPad版
+   ============================================ */
+
+/* 纱线行 - 一行拉满 */
+.yarn-row {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 0;
+}
+
+/* 纱线标签 */
+.yarn-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    min-width: 36px;
+}
+
+/* 输入框 - 弹性宽度 */
+.yarn-input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 22px;
+    font-size: 16px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.yarn-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(91, 155, 213, 0.2);
+}
+
+.yarn-input::placeholder {
+    color: var(--text-tertiary);
+    font-size: 15px;
+}
+
+/* ============================================
+   Q版圆形按钮 - 可爱风格 iPad版
+   ============================================ */
+
+.yarn-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    box-shadow: var(--button-shadow);
+}
+
+.yarn-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.yarn-btn:active {
+    transform: scale(0.92);
+}
+
+/* 拍照按钮 - 柔和蓝 */
+.yarn-btn-camera {
+    background: linear-gradient(145deg, #7EB8E6, #5B9BD5);
+    color: white;
+}
+
+/* 录音按钮 - 柔和粉 */
+.yarn-btn-audio {
+    background: linear-gradient(145deg, #E8A0BF, #D685A5);
+    color: white;
+}
+
+/* 清空按钮 - 柔和灰 */
+.yarn-btn-clear {
+    background: linear-gradient(145deg, #B8BCC5, #9CA3AF);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* 删除按钮 - 柔和红 */
+.yarn-btn-delete {
+    background: linear-gradient(145deg, #E07B75, #C85A54);
+    color: white;
+}
+
+/* 添加按钮 - 柔和绿 */
+.yarn-btn-add {
+    background: linear-gradient(145deg, #8BC4A9, #6C9A8B);
+    color: white;
+    font-size: 24px;
+}
+
+/* ============================================
+   旧样式兼容（保留给其他元素使用）
+   ============================================ */
+
+/* 纱线控制区域 - 一行布局 */
+.yarn-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.yarn-controls button {
+    flex: 1;
+    min-width: 90px;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--primary-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+    box-shadow: var(--button-shadow);
+    white-space: nowrap;
+}
+
+.yarn-controls button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.yarn-controls button:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.yarn-controls .delete-yarn-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    flex: 0.8;
+    min-width: 70px;
+}
+
+/* 标签行样式 - 添加按钮在标签旁边 */
+.row-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.row-label .yarn-btn-add {
+    width: 36px;
+    height: 36px;
+    font-size: 22px;
+}
+
+/* 纱线项目容器 */
+.yarn-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.input-wrapper input,
+.input-wrapper textarea {
+    width: 100%;
+    padding: 14px 40px 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 17px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(15px);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.input-wrapper input:focus,
+.input-wrapper textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+}
+
+.input-wrapper textarea {
+    min-height: 80px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.clear-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    color: white;
+    border: none;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.input-wrapper input:not(:placeholder-shown) + .clear-btn,
+.input-wrapper textarea:not(:placeholder-shown) + .clear-btn {
+    display: flex;
+}
+
+.clear-btn:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+.clear-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* 媒体预览 */
+.media-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.media-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.media-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.media-item img,
+.media-item video {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+}
+
+.media-item audio {
+    width: 100%;
+    height: 50px;
+}
+
+/* 添加按钮 */
+.add-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1.5px solid var(--primary-color);
+    border-radius: 14px;
+    color: var(--primary-color);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+    box-shadow: var(--button-shadow);
+}
+
+.add-btn:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.add-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(40px) saturate(120%);
+    -webkit-backdrop-filter: blur(40px) saturate(120%);
+    border-top: 1px solid var(--border-color);
+    padding: 18px;
+    display: flex;
+    gap: 14px;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.12);
+    z-index: 100;
+}
+
+.bottom-actions button {
+    flex: 1;
+    padding: 16px 20px;
+    border: none;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all 0.2s ease;
+    box-shadow: var(--button-shadow);
+    white-space: nowrap;
+}
+
+.bottom-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.bottom-actions button:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+/* 历史记录列表 */
+#recordsList {
+    padding: 20px;
+}
+
+.records-header {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(40px) saturate(120%);
+    -webkit-backdrop-filter: blur(40px) saturate(120%);
+    border-radius: 22px;
+    padding: 24px;
+    margin-bottom: 22px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.records-header h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    letter-spacing: -0.8px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 17px;
+    background: var(--bg-tertiary);
+    backdrop-filter: blur(15px);
+}
+
+.search-bar button {
+    padding: 14px 24px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--button-shadow);
+    transition: all 0.2s ease;
+}
+
+.search-bar button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.search-bar button:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.record-card {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(40px) saturate(120%);
+    -webkit-backdrop-filter: blur(40px) saturate(120%);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.record-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.record-card:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.record-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.record-date {
+    font-size: 14px;
+    color: var(--text-tertiary);
+}
+
+.record-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.info-item {
+    font-size: 15px;
+    color: var(--text-secondary);
+    padding: 6px 0;
+}
+
+/* 模态框 */
+#modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(15px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 40px;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(50px) saturate(120%);
+    -webkit-backdrop-filter: blur(50px) saturate(120%);
+    border-radius: 26px;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 32px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+.modal-content h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.modal-content h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 24px 0 12px;
+    color: var(--text-secondary);
+}
+
+.modal-content h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--text-secondary);
+}
+

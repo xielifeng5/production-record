@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择版本 - 提花织物生产记录系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 32px;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .version-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .version-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .version-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            border-color: #007AFF;
+        }
+        
+        .version-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        .version-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+        
+        .version-desc {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .version-features {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+        
+        .version-features li {
+            font-size: 14px;
+            color: #444;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .version-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #34C759;
+            font-weight: bold;
+        }
+        
+        .version-btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #007AFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .version-btn:hover {
+            background: #0051D5;
+            transform: scale(1.05);
+        }
+        
+        .auto-detect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .auto-detect h2 {
+            font-size: 20px;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+        
+        .auto-detect p {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .device-info {
+            background: rgba(0, 122, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #007AFF;
+        }
+        
+        .auto-btn {
+            display: inline-block;
+            padding: 16px 48px;
+            background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
+        }
+        
+        .auto-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 24px rgba(52, 199, 89, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 24px;
+                margin-bottom: 24px;
+            }
+            
+            .version-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .version-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 提花织物生产记录系统</h1>
+        
+        <!-- 自动检测推荐 -->
+        <div class="auto-detect">
+            <h2>🎯 智能推荐（推荐）</h2>
+            <p>系统会自动检测您的设备并加载最适合的版本</p>
+            <div class="device-info" id="deviceInfo">
+                正在检测设备...
+            </div>
+            <a href="index-mobile.html" class="auto-btn">🚀 自动选择版本</a>
+        </div>
+        
+        <!-- 手动选择 -->
+        <div class="version-grid" style="margin-top: 40px;">
+            <!-- 桌面版 -->
+            <div class="version-card" onclick="window.location.href='index.html'">
+                <div class="version-icon">🖥️</div>
+                <div class="version-title">桌面版</div>
+                <div class="version-desc">适合电脑、笔记本使用</div>
+                <ul class="version-features">
+                    <li>宽松布局</li>
+                    <li>鼠标操作优化</li>
+                    <li>现代简约风格</li>
+                    <li>大屏幕显示</li>
+                </ul>
+                <a href="index.html" class="version-btn">打开桌面版</a>
+            </div>
+            
+            <!-- 手机版 -->
+            <div class="version-card" onclick="window.location.href='index-mobile.html'">
+                <div class="version-icon">📱</div>
+                <div class="version-title">手机版</div>
+                <div class="version-desc">适合iPhone、Android手机</div>
+                <ul class="version-features">
+                    <li>紧凑布局</li>
+                    <li>触摸优化</li>
+                    <li>苹果iOS风格</li>
+                    <li>毛玻璃效果</li>
+                </ul>
+                <a href="index-mobile.html" class="version-btn">打开手机版</a>
+            </div>
+            
+            <!-- iPad版 -->
+            <div class="version-card" onclick="window.location.href='index-mobile.html'">
+                <div class="version-icon">📱</div>
+                <div class="version-title">iPad版</div>
+                <div class="version-desc">适合iPad Pro 12.9寸</div>
+                <ul class="version-features">
+                    <li>舒适布局</li>
+                    <li>触摸+悬停</li>
+                    <li>iPadOS风格</li>
+                    <li>强化毛玻璃</li>
+                </ul>
+                <a href="index-mobile.html" class="version-btn">打开iPad版</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 检测设备
+        function detectDevice() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const userAgent = navigator.userAgent.toLowerCase();
+            
+            let deviceType = '未知设备';
+            let recommendation = 'index-mobile.html';
+            
+            // 检测设备类型
+            if (/ipad/.test(userAgent) || (width >= 1024 && height >= 1366) || (width >= 1366 && height >= 1024)) {
+                deviceType = 'iPad（大屏平板）';
+                recommendation = 'index-mobile.html（自动加载iPad样式）';
+            } else if (/iphone|android/.test(userAgent) || width < 768) {
+                deviceType = 'iPhone/Android手机';
+                recommendation = 'index-mobile.html（自动加载手机样式）';
+            } else {
+                deviceType = '桌面电脑';
+                recommendation = 'index.html（桌面版）';
+            }
+            
+            // 显示设备信息
+            const deviceInfo = document.getElementById('deviceInfo');
+            deviceInfo.innerHTML = `
+                <strong>检测结果：</strong>${deviceType}<br>
+                <strong>屏幕尺寸：</strong>${width} × ${height}px<br>
+                <strong>推荐版本：</strong>${recommendation}
+            `;
+        }
+        
+        // 页面加载时检测
+        detectDevice();
+        
+        // 窗口大小改变时重新检测
+        window.addEventListener('resize', detectDevice);
+    </script>
+</body>
+</html>
+

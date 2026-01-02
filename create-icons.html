@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>生成PWA图标</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+        .info { color: #666; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🎨 PWA图标生成器</h1>
+    <p class="info">点击按钮下载图标，然后放到项目文件夹中</p>
+    
+    <h3>192x192 图标</h3>
+    <canvas id="icon192" width="192" height="192"></canvas>
+    <button onclick="download('icon192', 'icon-192.png')">📥 下载 icon-192.png</button>
+    
+    <h3>512x512 图标</h3>
+    <canvas id="icon512" width="512" height="512"></canvas>
+    <button onclick="download('icon512', 'icon-512.png')">📥 下载 icon-512.png</button>
+
+    <script>
+        function drawIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // 背景渐变
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#4A5568');
+            gradient.addColorStop(1, '#718096');
+            
+            // 圆角矩形背景
+            const radius = size * 0.2;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // 织物网格
+            ctx.strokeStyle = 'rgba(160, 174, 192, 0.4)';
+            ctx.lineWidth = size * 0.006;
+            const gridSize = size / 8;
+            for (let i = 1; i < 8; i++) {
+                ctx.beginPath();
+                ctx.moveTo(gridSize * i, size * 0.15);
+                ctx.lineTo(gridSize * i, size * 0.85);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(size * 0.15, gridSize * i);
+                ctx.lineTo(size * 0.85, gridSize * i);
+                ctx.stroke();
+            }
+            
+            // 中心纱线圆环
+            const centerX = size / 2;
+            const centerY = size / 2;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size * 0.25, 0, Math.PI * 2);
+            ctx.strokeStyle = '#E2E8F0';
+            ctx.lineWidth = size * 0.06;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size * 0.15, 0, Math.PI * 2);
+            ctx.strokeStyle = '#CBD5E0';
+            ctx.lineWidth = size * 0.04;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size * 0.06, 0, Math.PI * 2);
+            ctx.fillStyle = '#A0AEC0';
+            ctx.fill();
+            
+            // 文字
+            ctx.fillStyle = '#E2E8F0';
+            ctx.font = `bold ${size * 0.08}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('生产记录', centerX, size * 0.88);
+        }
+        
+        function download(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // 绘制图标
+        drawIcon('icon192', 192);
+        drawIcon('icon512', 512);
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4A5568">
+    <meta name="description" content="提花织物生产记录与管理系统">
+    <title>提花织物生产记录系统</title>
+
+    <!-- PWA配置 -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+    <!-- 根据设备自动加载样式 -->
+    <script>
+        // 检测设备类型
+        function detectDevice() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const userAgent = navigator.userAgent.toLowerCase();
+            
+            // iPad 12.9寸检测 (1024x1366 或更大)
+            if ((width >= 1024 && height >= 1366) || (width >= 1366 && height >= 1024)) {
+                return 'ipad';
+            }
+            // 其他设备使用手机版
+            return 'mobile';
+        }
+        
+        // 加载对应样式
+        const device = detectDevice();
+        const styleLink = document.createElement('link');
+        styleLink.rel = 'stylesheet';
+        styleLink.href = device === 'ipad' ? 'styles-ipad.css' : 'styles-mobile.css';
+        document.head.appendChild(styleLink);
+        
+        console.log('检测到设备类型:', device);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面容器 -->
+        <div id="pagesContainer"></div>
+        
+        <!-- 底部操作栏 -->
+        <div class="bottom-actions">
+            <button class="btn-primary" onclick="app.addPage()">➕ 增加页</button>
+            <button class="btn-success" onclick="app.saveAllPages()">💾 保存所有页</button>
+            <button class="btn-secondary" onclick="app.showRecordsList()">📋 查看历史</button>
+        </div>
+        
+        <!-- 历史记录列表 -->
+        <div id="recordsList" style="display: none;">
+            <div class="records-header">
+                <h2>📋 历史记录</h2>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="搜索记录...">
+                    <button onclick="app.searchRecords()">🔍</button>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <button class="btn-secondary" style="flex: 1;" onclick="app.showRecordForm()">← 返回</button>
+                    <button class="btn-primary" style="flex: 1;" onclick="app.exportData()">📤 导出</button>
+                </div>
+            </div>
+            <div id="recordsContainer"></div>
+        </div>
+    </div>
+    
+    <!-- 模态框 -->
+    <div id="modal">
+        <div class="modal-content">
+            <div id="modalBody"></div>
+        </div>
+    </div>
+    
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="epImageInput" accept="image/*" style="display: none;">
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+    <input type="file" id="videoInput" accept="video/*" capture="environment" style="display: none;">
+    
+    <!-- 脚本文件 -->
+    <script src="database.js"></script>
+    <script src="media.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // 初始化应用
+        const app = new ProductionRecordApp();
+
+        // 点击模态框外部关闭
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                app.closeModal();
+            }
+        });
+
+        // 防止页面滚动时的橡皮筋效果（iOS）
+        document.body.addEventListener('touchmove', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                const scrollable = e.target.closest('.modal-content, #recordsContainer');
+                if (!scrollable) {
+                    e.preventDefault();
+                }
+            }
+        }, { passive: false });
+
+        // 注册Service Worker (PWA支持)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('✅ Service Worker 已注册'))
+                    .catch(err => console.log('❌ Service Worker 注册失败:', err));
+            });
+        }
+
+        // 显示设备信息（调试用）
+        console.log('屏幕尺寸:', window.innerWidth, 'x', window.innerHeight);
+        console.log('设备像素比:', window.devicePixelRatio);
+    </script>
+</body>
+</html>
+

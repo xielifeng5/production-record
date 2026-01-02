@@ -1,0 +1,724 @@
+/* 手机版样式 - 苹果风格毛玻璃设计（灰色调） */
+
+:root {
+    --primary-color: #5B9BD5;
+    --secondary-color: #7B8FA3;
+    --success-color: #6C9A8B;
+    --warning-color: #D4A574;
+    --danger-color: #C85A54;
+    --bg-primary: rgba(245, 245, 247, 0.5);
+    --bg-secondary: rgba(255, 255, 255, 0.4);
+    --bg-tertiary: rgba(255, 255, 255, 0.25);
+    --text-primary: #1C1C1E;
+    --text-secondary: #48484A;
+    --text-tertiary: #8E8E93;
+    --border-color: rgba(60, 60, 67, 0.12);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+    --button-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+    background: linear-gradient(135deg, #4A5568 0%, #A0AEC0 100%);
+    min-height: 100vh;
+    padding: 10px;
+    font-size: 16px;
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* 毛玻璃效果卡片 */
+.glass-card {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(30px) saturate(120%);
+    -webkit-backdrop-filter: blur(30px) saturate(120%);
+    border-radius: 18px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 10px;
+    padding: 12px;
+}
+
+/* 页面容器 */
+.page-container {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(30px) saturate(120%);
+    -webkit-backdrop-filter: blur(30px) saturate(120%);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    padding: 14px;
+    margin-bottom: 14px;
+    position: relative;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-number {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color);
+    letter-spacing: -0.3px;
+}
+
+.delete-page-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--button-shadow);
+    transition: all 0.2s ease;
+}
+
+.delete-page-btn:active {
+    transform: scale(0.92);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 区块标题 */
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    letter-spacing: -0.2px;
+}
+
+/* EP图片上传区域 */
+.ep-upload-section {
+    margin-bottom: 12px;
+}
+
+.upload-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: var(--button-shadow);
+    transition: all 0.2s ease;
+}
+
+.upload-btn:active {
+    transform: scale(0.97);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ep-image-preview {
+    margin-top: 10px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.yarn-controls button {
+    flex: 1;
+    min-width: 60px;
+    padding: 8px 6px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--primary-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    transition: all 0.2s ease;
+    box-shadow: var(--button-shadow);
+    white-space: nowrap;
+}
+
+.yarn-controls button:active {
+    transform: scale(0.95);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.yarn-controls .delete-yarn-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    flex: 0.8;
+    min-width: 50px;
+}
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.input-wrapper input,
+.input-wrapper textarea {
+    width: 100%;
+    padding: 10px 32px 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 15px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(10px);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.input-wrapper input:focus,
+.input-wrapper textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.input-wrapper textarea {
+    min-height: 60px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    color: white;
+    border: none;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.input-wrapper input:not(:placeholder-shown) + .clear-btn,
+.input-wrapper textarea:not(:placeholder-shown) + .clear-btn {
+    display: flex;
+}
+
+.clear-btn:active {
+    transform: translateY(-50%) scale(0.9);
+}
+
+/* 媒体预览 */
+.media-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.media-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+    box-shadow: var(--shadow-sm);
+}
+
+.media-item img,
+.media-item video {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+}
+
+.media-item audio {
+    width: 100%;
+    height: 40px;
+}
+
+/* 添加按钮 */
+.add-btn {
+    width: 100%;
+    padding: 9px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid var(--primary-color);
+    border-radius: 12px;
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 6px;
+    transition: all 0.2s ease;
+    box-shadow: var(--button-shadow);
+}
+
+.add-btn:active {
+    transform: scale(0.97);
+    background: var(--bg-tertiary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(30px) saturate(120%);
+    -webkit-backdrop-filter: blur(30px) saturate(120%);
+    border-top: 1px solid var(--border-color);
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+    z-index: 100;
+}
+
+.bottom-actions button {
+    flex: 1;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    box-shadow: var(--button-shadow);
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.bottom-actions button:active {
+    transform: scale(0.95);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 历史记录列表 */
+#recordsList {
+    padding: 10px;
+}
+
+.records-header {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(30px) saturate(120%);
+    -webkit-backdrop-filter: blur(30px) saturate(120%);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.records-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 15px;
+    background: var(--bg-tertiary);
+    backdrop-filter: blur(10px);
+}
+
+.search-bar button {
+    padding: 10px 16px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--button-shadow);
+    transition: all 0.2s ease;
+}
+
+.search-bar button:active {
+    transform: scale(0.95);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.record-card {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(30px) saturate(120%);
+    -webkit-backdrop-filter: blur(30px) saturate(120%);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.record-card:active {
+    transform: scale(0.97);
+    box-shadow: var(--shadow-md);
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.record-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.record-date {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.record-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+}
+
+.info-item {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 4px 0;
+}
+
+/* 模态框 */
+#modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(40px) saturate(120%);
+    -webkit-backdrop-filter: blur(40px) saturate(120%);
+    border-radius: 22px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+.modal-content h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.modal-content h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--text-secondary);
+}
+
+.modal-content h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 10px 0 6px;
+    color: var(--text-secondary);
+}
+
+/* 响应式优化 */
+@media (max-width: 375px) {
+    body {
+        padding: 8px;
+        font-size: 15px;
+    }
+
+    .page-container {
+        padding: 12px;
+    }
+
+    .yarn-controls {
+        gap: 4px;
+    }
+
+    .yarn-controls button {
+        min-width: 60px;
+        padding: 7px 8px;
+        font-size: 12px;
+    }
+}
+
+.delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(200, 90, 84, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: white;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--button-shadow);
+    transition: all 0.2s ease;
+}
+
+.delete-btn:active {
+    transform: scale(0.88);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 纱线项 */
+.yarn-item {
+    background: var(--bg-tertiary);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 8px;
+    margin-bottom: 6px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   Q版可爱纱线一行布局
+   ============================================ */
+
+/* 纱线行 - 一行拉满 */
+.yarn-row {
+    display: flex;
+    width: 100%;
+    gap: 6px;
+    align-items: center;
+    padding: 4px 0;
+}
+
+/* 纱线标签 */
+.yarn-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    min-width: 28px;
+}
+
+/* 输入框 - 弹性宽度 */
+.yarn-input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    font-size: 14px;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.yarn-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.2);
+}
+
+.yarn-input::placeholder {
+    color: var(--text-tertiary);
+    font-size: 13px;
+}
+
+/* ============================================
+   Q版圆形按钮 - 可爱风格
+   ============================================ */
+
+.yarn-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    box-shadow: var(--button-shadow);
+}
+
+.yarn-btn:active {
+    transform: scale(0.9);
+}
+
+/* 拍照按钮 - 柔和蓝 */
+.yarn-btn-camera {
+    background: linear-gradient(145deg, #7EB8E6, #5B9BD5);
+    color: white;
+}
+
+/* 录音按钮 - 柔和粉 */
+.yarn-btn-audio {
+    background: linear-gradient(145deg, #E8A0BF, #D685A5);
+    color: white;
+}
+
+/* 清空按钮 - 柔和灰 */
+.yarn-btn-clear {
+    background: linear-gradient(145deg, #B8BCC5, #9CA3AF);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* 删除按钮 - 柔和红 */
+.yarn-btn-delete {
+    background: linear-gradient(145deg, #E07B75, #C85A54);
+    color: white;
+}
+
+/* 添加按钮 - 柔和绿 */
+.yarn-btn-add {
+    background: linear-gradient(145deg, #8BC4A9, #6C9A8B);
+    color: white;
+    font-size: 20px;
+}
+
+/* 按钮悬停效果 */
+.yarn-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   旧样式兼容（保留给其他元素使用）
+   ============================================ */
+
+/* 纱线控制区域 - 一行布局 */
+.yarn-controls {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+/* 标签行样式 - 添加按钮在标签旁边 */
+.row-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.row-label .yarn-btn-add {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+}
+
+/* 纱线项目容器 */
+.yarn-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}

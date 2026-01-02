@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提花织物生产记录系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部导航 -->
+        <header class="app-header">
+            <h1>🧵 提花织物生产记录系统</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="app.showRecordsList()">📋 历史记录</button>
+                <button class="btn btn-secondary" onclick="app.exportData()">📤 导出数据</button>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 页面容器 -->
+            <div id="pagesContainer">
+                <!-- 页面将动态添加 -->
+            </div>
+
+            <!-- 底部操作按钮 -->
+            <div class="bottom-actions">
+                <button class="btn btn-success btn-large" onclick="app.addPage()">➕ 增加页</button>
+                <button class="btn btn-primary btn-large" onclick="app.saveAllPages()">💾 保存所有页</button>
+            </div>
+
+            <!-- 历史记录列表 -->
+            <div id="recordsList" class="section" style="display: none;">
+                <div class="list-header">
+                    <h2>历史记录</h2>
+                    <button class="btn btn-secondary" onclick="app.showRecordForm()">➕ 新建记录</button>
+                </div>
+                
+                <!-- 搜索和筛选 -->
+                <div class="search-section">
+                    <input type="text" id="searchInput" class="form-control" placeholder="🔍 搜索EP文件名..." onkeyup="app.searchRecords()">
+                    <input type="date" id="dateFilter" class="form-control" onchange="app.filterByDate()">
+                </div>
+
+                <div id="recordsContainer" class="records-container">
+                    <!-- 记录列表将动态生成 -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 隐藏的文件输入和媒体元素 -->
+    <input type="file" id="photoInput" accept="image/*" capture="camera" style="display: none;">
+    <input type="file" id="epImageInput" accept="image/*" style="display: none;">
+    <input type="file" id="videoInput" accept="video/*" capture="camera" style="display: none;">
+    <video id="videoPreview" style="display: none;" playsinline></video>
+    <canvas id="photoCanvas" style="display: none;"></canvas>
+
+    <!-- 模态框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="app.closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="media.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
