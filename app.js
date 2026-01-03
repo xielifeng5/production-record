@@ -1670,7 +1670,11 @@ async function handleContextAction(action, type, id) {
                 }
             } else if (type === 'record') {
                 const record = await db.getRecord(id);
-                const newName = prompt('请输入新的记录名称：', record?.name || '');
+                if (!record) {
+                    console.error('记录不存在:', id);
+                    return;
+                }
+                const newName = prompt('请输入新的记录名称：', record.name || '');
                 if (newName !== null && newName.trim()) {
                     record.name = newName.trim();
                     await db.saveRecord(record);
