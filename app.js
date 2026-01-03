@@ -3,25 +3,37 @@ class App {
     constructor() {
         this.pages = [];
         this.pageCount = 0;
-        this.currentTargetId = null;
+	        this.currentTargetId = null;
+	        this.currentRecordId = null; // 当前正在编辑的记录ID，null 表示新建
+
+	        // Stack（堆）导航状态（第 1、2 层）
+	        this.currentStackId = null;      // 当前所在堆的 ID，null 表示“未分组”
+	        this.currentStackName = '未分组'; // 仅用于界面展示
+
+	        // 多页编辑器导航状态
+	        this.currentPageIndex = 0; // 当前显示的页面索引
     }
 
-    // 初始化应用
-    async init() {
-        try {
-            await db.init();
-            console.log('数据库初始化成功');
-
-            // 添加第一页
-            this.addPage();
-
-            // 加载历史记录
-            await this.loadRecords();
-        } catch (error) {
-            console.error('初始化失败:', error);
-            alert('应用初始化失败，请刷新页面重试');
-        }
-    }
+		    // 初始化应用
+		    async init() {
+		        try {
+		            await db.init();
+		            console.log('数据库初始化成功');
+		
+		            const stacksViewEl = document.getElementById('stacksView');
+		
+		            if (stacksViewEl) {
+		                // 桌面版：有堆画廊，显示堆画廊（第 1 层）
+		                this.showStacksView();
+		            } else {
+		                // 手机版：没有堆画廊，直接进入编辑器（新建一条空记录）
+		                this.resetAllPages();
+		            }
+		        } catch (error) {
+		            console.error('初始化失败:', error);
+		            alert('应用初始化失败，请刷新页面重试');
+		        }
+		    }
 
     // 添加新页面
     addPage(copyFromPrevious = true) {
@@ -49,6 +61,10 @@ class App {
 
         this.pages.push(pageData);
         this.renderPage(pageData);
+
+        // 跳转到新页面并更新指示器
+        this.currentPageIndex = this.pages.length - 1;
+        this.updatePageIndicators();
     }
 
     // 渲染页面
@@ -247,7 +263,7 @@ class App {
                 <span class="yarn-label">经${index + 1}</span>
                 <input type="text" id="${pageId}-warp-${index}-text" class="yarn-input" placeholder="输入型号..." value="${warpData.text || ''}">
                 <button class="yarn-btn yarn-btn-camera" onclick="app.captureYarnPhoto('${pageId}', 'warp', ${index})">📷</button>
-                <button class="yarn-btn yarn-btn-audio" onclick="app.recordYarnAudio('${pageId}', 'warp', ${index})">🎤</button>
+                <button class="yarn-btn yarn-btn-audio" onclick="app.recordYarnAudio('${pageId}', 'warp', ${index})">�</button>
                 <button class="yarn-btn yarn-btn-clear" onclick="app.clearInput('${pageId}-warp-${index}-text')">✕</button>
                 <button class="yarn-btn yarn-btn-delete" onclick="app.deleteWarpYarn('${pageId}', ${index})">🗑</button>
             </div>
@@ -305,7 +321,7 @@ class App {
                 <span class="yarn-label">纬${index + 1}</span>
                 <input type="text" id="${pageId}-weft-${index}-text" class="yarn-input" placeholder="输入型号..." value="${weftData.text || ''}">
                 <button class="yarn-btn yarn-btn-camera" onclick="app.captureYarnPhoto('${pageId}', 'weft', ${index})">📷</button>
-                <button class="yarn-btn yarn-btn-audio" onclick="app.recordYarnAudio('${pageId}', 'weft', ${index})">🎤</button>
+                <button class="yarn-btn yarn-btn-audio" onclick="app.recordYarnAudio('${pageId}', 'weft', ${index})">�</button>
                 <button class="yarn-btn yarn-btn-clear" onclick="app.clearInput('${pageId}-weft-${index}-text')">✕</button>
                 <button class="yarn-btn yarn-btn-delete" onclick="app.deleteWeftYarn('${pageId}', ${index})">🗑</button>
             </div>
@@ -642,21 +658,41 @@ class App {
             });
 
             if (hasError) return;
-
-            // 保存到数据库
-            const record = {
-                timestamp: new Date().getTime(),
-                pages: allPagesData
-            };
-
-            await db.saveRecord(record);
-
-            alert(`✓ 成功保存 ${this.pages.length} 页记录！`);
-
-            // 询问是否重置
-            if (confirm('是否清空当前页面，开始新的记录？')) {
-                this.resetAllPages();
-            }
+	
+	            // 根据当前状态决定是新建记录还是更新记录
+	            if (this.currentRecordId != null) {
+	                // 更新现有记录
+	                const existing = await db.getRecord(this.currentRecordId);
+	                if (!existing) {
+	                    alert('原记录不存在，无法更新，将另存为新记录。');
+	                } else {
+	                    existing.pages = allPagesData;
+	                    // 更新修改时间和日期，便于排序和按日期筛选
+	                    existing.timestamp = new Date().getTime();
+	                    existing.date = new Date().toISOString().split('T')[0];
+	                    await db.updateRecord(existing);
+	
+	                    alert(`✓ 记录已更新（共 ${this.pages.length} 页）！`);
+	                    // 编辑模式下通常继续留在当前记录中，如需新建可手动点击重置
+	                    return;
+	                }
+	            }
+	
+	            // 如果不是编辑模式，或原记录不存在，则保存为新记录
+	            const record = {
+	                pages: allPagesData,
+	                // 将记录归属于当前堆（第 2 层），null 表示“未分组”
+	                stackId: this.currentStackId != null ? this.currentStackId : null
+	            };
+	
+	            await db.saveRecord(record);
+	
+	            alert(`✓ 成功保存 ${this.pages.length} 页记录！`);
+	
+	            // 询问是否重置
+	            if (confirm('是否清空当前页面，开始新的记录？')) {
+	                this.resetAllPages();
+	            }
 
         } catch (error) {
             console.error('保存失败:', error);
@@ -668,64 +704,303 @@ class App {
     resetAllPages() {
         this.pages = [];
         this.pageCount = 0;
-        document.getElementById('pagesContainer').innerHTML = '';
-        this.addPage(false);
-    }
+	        this.currentRecordId = null;
+	        document.getElementById('pagesContainer').innerHTML = '';
+	        this.addPage(false);
+	        this.updateEditorStatus();
+	    }
 
-    // 加载历史记录
-    async loadRecords() {
-        try {
-            const records = await db.getAllRecords();
-            this.displayRecords(records);
-        } catch (error) {
-            console.error('加载记录失败:', error);
-        }
-    }
+	    // ========================
+	    // Stack（堆）与列表视图
+	    // ========================
 
-    // 显示记录列表
-    displayRecords(records) {
-        const container = document.getElementById('recordsContainer');
+	    // 显示 Stack 画廊（第 1 层）
+	    async showStacksView() {
+	        const pagesEl = document.getElementById('pagesContainer');
+	        const bottomEl = document.querySelector('.bottom-actions');
+	        const recordsListEl = document.getElementById('recordsList');
+	        const stacksViewEl = document.getElementById('stacksView');
 
-        if (records.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">暂无记录</p>';
-            return;
-        }
+	        if (pagesEl) pagesEl.style.display = 'none';
+	        if (bottomEl) bottomEl.style.display = 'none';
+	        if (recordsListEl) recordsListEl.style.display = 'none';
+	        if (stacksViewEl) stacksViewEl.style.display = 'block';
 
-        // 按时间倒序排列
-        records.sort((a, b) => b.timestamp - a.timestamp);
+	        // 回到堆画廊时，清空当前堆选择
+	        this.currentStackId = null;
+	        this.currentStackName = '未分组';
 
-        container.innerHTML = records.map(record => {
-            const date = new Date(record.timestamp);
-            const dateStr = date.toLocaleString('zh-CN');
+	        const statusEl = document.getElementById('editorStatus');
+	        if (statusEl) {
+	            statusEl.textContent = '📚 当前：堆画廊';
+	        }
 
-            const pageCount = record.pages ? record.pages.length : 0;
+	        await this.loadStacks();
+	    }
 
-            return `
-                <div class="record-card" onclick="app.viewRecord(${record.id})">
-                    <div class="record-header">
-                        <div class="record-title">📄 生产记录</div>
-                        <div class="record-date">${dateStr}</div>
-                    </div>
-                    <div class="record-info">
-                        <div class="info-item">📄 页数: ${pageCount}</div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
+	    // 加载所有堆及其下记录数量
+	    async loadStacks() {
+	        try {
+	            const stacks = db.getAllStacks ? await db.getAllStacks() : [];
+	            const records = await db.getAllRecords();
+	            this.displayStacks(stacks, records);
+	        } catch (error) {
+	            console.error('加载堆失败:', error);
+	        }
+	    }
+
+	    // 渲染 Stack 画廊
+		    displayStacks(stacks, records) {
+		        const container = document.getElementById('stacksContainer');
+		        if (!container) return;
+
+		        const recordsByStack = new Map();
+		        const unstackedRecords = [];
+
+		        (records || []).forEach(record => {
+		            const sid = record.stackId != null ? record.stackId : null;
+		            if (sid === null) {
+		                unstackedRecords.push(record);
+		            } else {
+		                if (!recordsByStack.has(sid)) {
+		                    recordsByStack.set(sid, []);
+		                }
+		                recordsByStack.get(sid).push(record);
+		            }
+		        });
+
+		        // 未分组记录按时间倒序，便于展示缩略图
+		        unstackedRecords.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+		        container.innerHTML = '';
+
+		        // 已命名的堆（类似 Procreate 的“堆叠”卡片）
+		        if (stacks && stacks.length > 0) {
+		            const sortedStacks = [...stacks].sort((a, b) => {
+		                const at = a.createdAt || 0;
+		                const bt = b.createdAt || 0;
+		                return bt - at;
+		            });
+
+		            sortedStacks.forEach(stack => {
+		                const list = recordsByStack.get(stack.id) || [];
+		                const count = list.length;
+		                const latestTs = list.length > 0 ? Math.max(...list.map(r => r.timestamp || 0)) : 0;
+		                const latestStr = latestTs ? new Date(latestTs).toLocaleString('zh-CN') : '';
+
+		                // 取前 1~3 条记录的首张 EP 图片作为堆叠缩略图
+		                const previewRecords = list.slice(0, 3);
+		                const previewImgs = previewRecords
+		                    .map(r => (r.pages && r.pages[0] && r.pages[0].epImage) ? r.pages[0].epImage : null)
+		                    .filter(Boolean);
+
+		                const thumbHtml = previewImgs.length > 0
+		                    ? `<div class="stack-thumb">
+		                            ${previewImgs.map((img, idx) => `
+		                                <div class="stack-thumb-layer layer-${idx + 1}">
+		                                    <img src="${img}" alt="堆缩略图">
+		                                </div>
+		                            `).join('')}
+		                       </div>`
+		                    : `<div class="stack-thumb stack-thumb-empty"></div>`;
+
+		                container.innerHTML += `
+		                    <div class="stack-card" onclick="app.openStack(${stack.id})">
+		                        ${thumbHtml}
+		                        <div class="stack-info">
+		                            <div class="stack-name">${stack.name || '未命名堆'}</div>
+		                            <div class="stack-meta">${count} 条记录${latestStr ? ' · ' + latestStr : ''}</div>
+		                        </div>
+		                    </div>
+		                `;
+		            });
+		        }
+
+		        // 未分组的单个记录，直接散落在画廊中，点击即进入编辑
+		        if (unstackedRecords.length > 0) {
+		            unstackedRecords.forEach(record => {
+		                const date = record.timestamp ? new Date(record.timestamp).toLocaleString('zh-CN') : '';
+		                const pageCount = record.pages ? record.pages.length : 0;
+		                const title = record.name && record.name.trim() ? record.name : '未命名记录';
+		                const thumb = record.pages && record.pages[0] && record.pages[0].epImage;
+
+		                container.innerHTML += `
+		                    <div class="record-card root-record-card" onclick="app.editRecord(${record.id})">
+		                        <div class="record-thumb">
+		                            ${thumb
+		                                ? `<img src="${thumb}" alt="记录缩略图">`
+		                                : '<div class="record-thumb-placeholder"></div>'}
+		                        </div>
+		                        <div class="record-meta">
+		                            <div class="record-title">${title}</div>
+		                            <div class="record-sub">${pageCount} 页${date ? ' · ' + date : ''}</div>
+		                        </div>
+		                    </div>
+		                `;
+		            });
+		        }
+
+		        if (!container.innerHTML) {
+		            container.innerHTML = '<p class="empty-text">暂无记录，请点击右上角“＋”创建</p>';
+		        }
+		    }
+
+	    // 打开指定堆（第 2 层：堆内记录列表）
+	    async openStack(stackId) {
+	        try {
+	            this.currentStackId = stackId != null ? stackId : null;
+	
+	            if (this.currentStackId === null) {
+	                this.currentStackName = '未分组';
+	            } else if (db.getStack) {
+	                const stack = await db.getStack(this.currentStackId);
+	                this.currentStackName = stack && stack.name ? stack.name : '未命名堆';
+	            } else {
+	                this.currentStackName = '未命名堆';
+	            }
+	
+	            const allRecords = await db.getAllRecords();
+	            const records = allRecords.filter(r => {
+	                const sid = r.stackId != null ? r.stackId : null;
+	                return this.currentStackId === null ? sid === null : sid === this.currentStackId;
+	            });
+	
+	            this.showStackRecords(records);
+	        } catch (error) {
+	            console.error('打开堆失败:', error);
+	        }
+	    }
+
+		    // 渲染堆内记录列表（第 2 层）
+		    showStackRecords(records) {
+		        const stacksViewEl = document.getElementById('stacksView');
+		        const recordsListEl = document.getElementById('recordsList');
+		        const pagesEl = document.getElementById('pagesContainer');
+		        const bottomEl = document.querySelector('.bottom-actions');
+
+		        if (stacksViewEl) stacksViewEl.style.display = 'none';
+		        if (pagesEl) pagesEl.style.display = 'none';
+		        if (bottomEl) bottomEl.style.display = 'none';
+		        if (recordsListEl) recordsListEl.style.display = 'block';
+
+		        const headerTitleEl = document.getElementById('stackTitle')
+		            || document.querySelector('#recordsList .records-header h2');
+		        if (headerTitleEl) {
+		            headerTitleEl.textContent = this.currentStackId === null
+		                ? '未分组'
+		                : (this.currentStackName || '未命名堆');
+		        }
+
+		        const statusEl = document.getElementById('editorStatus');
+		        if (statusEl) {
+		            if (this.currentStackId === null) {
+		                statusEl.textContent = '📂 当前：未分组记录列表';
+		            } else {
+		                statusEl.textContent = `📂 当前堆：${this.currentStackName || '未命名堆'}`;
+		            }
+		        }
+
+		        this.displayRecords(records || []);
+		    }
+
+	    // 新建堆
+	    async createStack() {
+	        const name = prompt('请输入新堆的名称：');
+	        if (!name) return;
+	
+	        try {
+	            const id = await db.saveStack({ name });
+	            this.currentStackId = id;
+	            this.currentStackName = name;
+	            // 创建后直接进入该堆的记录列表（目前为空）
+	            await this.openStack(id);
+	        } catch (error) {
+	            console.error('创建堆失败:', error);
+	            alert('创建堆失败，请重试');
+	        }
+	    }
+
+	    // 加载历史记录（兼容旧调用，基于当前堆过滤）
+	    async loadRecords(stackId = this.currentStackId) {
+	        try {
+	            const all = await db.getAllRecords();
+	            const targetId = stackId != null ? stackId : null;
+	            const records = all.filter(r => {
+	                const sid = r.stackId != null ? r.stackId : null;
+	                return targetId === null ? sid === null : sid === targetId;
+	            });
+	            this.displayRecords(records);
+	        } catch (error) {
+	            console.error('加载记录失败:', error);
+	        }
+	    }
+
+		    // 显示记录列表（第 2 层堆内画廊）
+		    displayRecords(records) {
+		        const container = document.getElementById('recordsContainer');
+		        if (!container) return;
+
+		        if (!records || records.length === 0) {
+		            container.innerHTML = '<p class="records-empty">暂无记录</p>';
+		            return;
+		        }
+
+		        // 按时间倒序排列，最近编辑的在前
+		        records.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+		        container.innerHTML = records.map(record => {
+		            const dateStr = record.timestamp
+		                ? new Date(record.timestamp).toLocaleString('zh-CN')
+		                : '';
+		            const pageCount = record.pages ? record.pages.length : 0;
+		            const title = record.name && record.name.trim()
+		                ? record.name.trim()
+		                : '未命名记录';
+		            const thumb = record.pages && record.pages[0] && record.pages[0].epImage;
+
+		            return `
+		                <div class="record-card" onclick="app.editRecord(${record.id})">
+		                    <div class="record-thumb">
+		                        ${thumb
+		                            ? `<img src="${thumb}" alt="记录缩略图">`
+		                            : '<div class="record-thumb-placeholder"></div>'}
+		                    </div>
+		                    <div class="record-meta">
+		                        <div class="record-title">${title}</div>
+		                        <div class="record-sub">${pageCount} 页${dateStr ? ' · ' + dateStr : ''}</div>
+		                    </div>
+		                </div>
+		            `;
+		        }).join('');
+		    }
 
     // 查看记录详情
     async viewRecord(id) {
         try {
             const record = await db.getRecord(id);
             if (!record) return;
-
-            const date = new Date(record.timestamp).toLocaleString('zh-CN');
-
-            let html = `
-                <h2>📄 生产记录详情</h2>
-                <p style="color: #666; margin-bottom: 20px;">记录时间: ${date}</p>
-            `;
+	
+	            const date = new Date(record.timestamp).toLocaleString('zh-CN');
+	            const title = record.name && record.name.trim() ? record.name.trim() : '生产记录详情';
+	
+	            let stackLabel = '未分组';
+	            if (record.stackId != null && db.getStack) {
+	                try {
+	                    const stack = await db.getStack(record.stackId);
+	                    stackLabel = stack && stack.name ? stack.name : `堆 #${record.stackId}`;
+	                } catch (e) {
+	                    console.warn('获取堆信息失败', e);
+	                    stackLabel = `堆 #${record.stackId}`;
+	                }
+	            } else if (record.stackId != null) {
+	                stackLabel = `堆 #${record.stackId}`;
+	            }
+	
+	            let html = `
+	                <h2>📄 ${title}</h2>
+	                <p style="color: #666; margin-bottom: 6px;">记录时间: ${date}</p>
+	                <p style="color: #666; margin-bottom: 20px;">所在堆: ${stackLabel}</p>
+	            `;
 
             if (record.pages && record.pages.length > 0) {
                 record.pages.forEach((page, pageIndex) => {
@@ -789,12 +1064,13 @@ class App {
                 });
             }
 
-            html += `
-                <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
-                    <button class="btn btn-danger" onclick="app.deleteRecord(${record.id})">删除记录</button>
-                    <button class="btn btn-secondary" onclick="app.closeModal()">关闭</button>
-                </div>
-            `;
+	            html += `
+	                <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+	                    <button class="btn btn-primary" onclick="app.editRecord(${record.id})">✏️ 编辑此记录</button>
+	                    <button class="btn btn-danger" onclick="app.deleteRecord(${record.id})">删除记录</button>
+	                    <button class="btn btn-secondary" onclick="app.closeModal()">关闭</button>
+	                </div>
+	            `;
 
             document.getElementById('modalBody').innerHTML = html;
             document.getElementById('modal').style.display = 'block';
@@ -803,6 +1079,78 @@ class App {
             console.error('查看记录失败:', error);
         }
     }
+
+	    // 在编辑器中打开指定记录（第 3 层：EP 多页编辑器）
+	    async editRecord(id) {
+	        try {
+	            // 关闭详情弹窗（如果当前是从详情进入）
+	            this.closeModal();
+
+	            const record = await db.getRecord(id);
+	            if (!record) {
+	                alert('未找到该记录');
+	                return;
+	            }
+		            
+		            this.currentRecordId = id;
+			
+			            // 同步当前堆信息，便于从编辑器返回堆列表
+			            this.currentStackId = record.stackId != null ? record.stackId : null;
+			            if (this.currentStackId === null) {
+			                this.currentStackName = '未分组';
+			            } else if (db.getStack) {
+			                try {
+			                    const stack = await db.getStack(this.currentStackId);
+			                    this.currentStackName = stack && stack.name ? stack.name : '未命名堆';
+			                } catch (e) {
+			                    console.warn('获取堆信息失败', e);
+			                    this.currentStackName = '未命名堆';
+			                }
+			            } else {
+			                this.currentStackName = '未命名堆';
+			            }
+
+	            // 清空当前编辑内容
+	            this.pages = [];
+	            this.pageCount = 0;
+	            const container = document.getElementById('pagesContainer');
+	            if (container) {
+	                container.innerHTML = '';
+	            }
+
+	            if (record.pages && record.pages.length > 0) {
+	                record.pages.forEach((savedPage) => {
+	                    this.pageCount++;
+	                    const pageId = `page-${this.pageCount}`;
+
+	                    const pageData = {
+	                        id: pageId,
+	                        epImage: savedPage.epImage || null,
+	                        warpYarns: savedPage.warpYarns || [],
+	                        weftYarns: savedPage.weftYarns || [],
+	                        actualDensity: savedPage.actualDensity || '',
+	                        problems: savedPage.problems || [],
+	                        products: savedPage.products || [],
+	                        warpCount: savedPage.warpYarns ? savedPage.warpYarns.length : 0,
+	                        weftCount: savedPage.weftYarns ? savedPage.weftYarns.length : 0
+	                    };
+
+	                    this.pages.push(pageData);
+	                    this.renderPage(pageData);
+	                });
+	            } else {
+	                // 如果旧记录中没有页数据，至少保留一页空白页
+	                this.addPage(false);
+	            }
+
+	            // 切换视图：显示编辑器（第 3 层），隐藏历史列表
+	            this.showRecordForm();
+	            this.updateEditorStatus();
+	        } catch (error) {
+	            console.error('编辑记录失败:', error);
+	            alert('加载记录失败，请重试');
+	        }
+	    }
 
 
     // 渲染媒体列表
@@ -879,20 +1227,165 @@ class App {
         document.getElementById('pagesContainer').style.display = 'none';
         document.querySelector('.bottom-actions').style.display = 'none';
         document.getElementById('recordsList').style.display = 'block';
-        this.loadRecords();
+	        this.loadRecords();
+	        const statusEl = document.getElementById('editorStatus');
+	        if (statusEl) {
+	            statusEl.textContent = '📋 当前：历史记录列表';
+	        }
     }
 
-    // 返回表单
+    // 返回表单（显示编辑器 - 第 3 层）
     showRecordForm() {
-        document.getElementById('pagesContainer').style.display = 'block';
+	        // 如果当前没有任何页面（例如从首页首次进入），自动新建一条空记录
+	        if (this.pages.length === 0) {
+	            this.resetAllPages();
+	        }
+
+	        // 隐藏第 1 层和第 2 层
+	        const stacksViewEl = document.getElementById('stacksView');
+	        if (stacksViewEl) stacksViewEl.style.display = 'none';
+	        document.getElementById('recordsList').style.display = 'none';
+
+	        // 显示编辑器相关元素
+	        const editorToolbar = document.getElementById('editorToolbar');
+	        const pagesNavigation = document.getElementById('pagesNavigation');
+	        if (editorToolbar) editorToolbar.style.display = 'flex';
+	        if (pagesNavigation) pagesNavigation.style.display = 'flex';
+
+        document.getElementById('pagesContainer').style.display = 'flex';
         document.querySelector('.bottom-actions').style.display = 'flex';
-        document.getElementById('recordsList').style.display = 'none';
+
+	        this.updateEditorStatus();
+	        this.updatePageIndicators();
+	        this.goToPage(this.currentPageIndex);
     }
+
+	    // 更新编辑器状态显示（新建 / 编辑）
+	    updateEditorStatus() {
+	        const statusEl = document.getElementById('editorStatus');
+	        if (!statusEl) return;
+
+	        if (this.currentRecordId == null) {
+	            statusEl.textContent = '🆕 当前：新建记录';
+	        } else {
+	            statusEl.textContent = `✏️ 当前：编辑记录（ID: ${this.currentRecordId}）`;
+	        }
+
+	        // 更新编辑器工具栏标题
+	        const editorTitleEl = document.getElementById('editorTitle');
+	        const editorSubtitleEl = document.getElementById('editorSubtitle');
+	        if (editorTitleEl) {
+	            editorTitleEl.textContent = this.currentRecordId == null ? '新建记录' : '编辑记录';
+	        }
+	        if (editorSubtitleEl) {
+	            editorSubtitleEl.textContent = this.currentStackName || '未分组';
+	        }
+	    }
+
+	    // ========================
+	    // 多页编辑器导航
+	    // ========================
+
+	    // 更新页面指示器
+	    updatePageIndicators() {
+	        const indicatorsEl = document.getElementById('pageIndicators');
+	        if (!indicatorsEl) return;
+
+	        indicatorsEl.innerHTML = '';
+	        this.pages.forEach((_page, index) => {
+	            const dot = document.createElement('button');
+	            dot.className = 'page-indicator-dot' + (index === this.currentPageIndex ? ' active' : '');
+	            dot.type = 'button';
+	            dot.onclick = () => this.goToPage(index);
+	            indicatorsEl.appendChild(dot);
+	        });
+
+	        // 更新导航按钮状态
+	        const prevBtn = document.querySelector('.page-nav-btn.prev');
+	        const nextBtn = document.querySelector('.page-nav-btn.next');
+	        if (prevBtn) prevBtn.disabled = this.currentPageIndex === 0;
+	        if (nextBtn) nextBtn.disabled = this.currentPageIndex >= this.pages.length - 1;
+	    }
+
+	    // 跳转到指定页面
+	    goToPage(index) {
+	        if (index < 0 || index >= this.pages.length) return;
+
+	        this.currentPageIndex = index;
+
+	        // 滚动到对应页面
+	        const container = document.getElementById('pagesContainer');
+	        const pageEl = document.getElementById(this.pages[index].id);
+	        if (container && pageEl) {
+	            pageEl.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+	        }
+
+	        this.updatePageIndicators();
+	    }
+
+	    // 上一页
+	    goToPrevPage() {
+	        if (this.currentPageIndex > 0) {
+	            this.goToPage(this.currentPageIndex - 1);
+	        }
+	    }
+
+	    // 下一页
+	    goToNextPage() {
+	        if (this.currentPageIndex < this.pages.length - 1) {
+	            this.goToPage(this.currentPageIndex + 1);
+	        }
+	    }
+
+	    // 从编辑器返回堆内记录列表（第 3 层 → 第 2 层）
+	    async backToStackRecords() {
+	        // 如果有未保存的更改，提示用户
+	        if (this.pages.length > 0) {
+	            const hasContent = this.pages.some(page => {
+	                const data = this.getPageData(page.id);
+	                return data && (data.epImage || data.warpYarns?.length > 0 || data.weftYarns?.length > 0);
+	            });
+
+	            if (hasContent && !confirm('返回列表将放弃当前未保存的更改，确定返回吗？')) {
+	                return;
+	            }
+	        }
+
+	        // 隐藏编辑器相关元素
+	        const editorToolbar = document.getElementById('editorToolbar');
+	        const pagesNavigation = document.getElementById('pagesNavigation');
+	        if (editorToolbar) editorToolbar.style.display = 'none';
+	        if (pagesNavigation) pagesNavigation.style.display = 'none';
+	        document.getElementById('pagesContainer').style.display = 'none';
+	        document.querySelector('.bottom-actions').style.display = 'none';
+
+	        // 清空编辑器状态
+	        this.pages = [];
+	        this.pageCount = 0;
+	        this.currentRecordId = null;
+	        this.currentPageIndex = 0;
+	        document.getElementById('pagesContainer').innerHTML = '';
+
+	        // 返回第 2 层（堆内记录列表）
+	        await this.openStack(this.currentStackId);
+	    }
 
     // 关闭模态框
     closeModal() {
         document.getElementById('modal').style.display = 'none';
     }
+
+	    // 从任何界面开始新建一条记录
+	    startNewRecord() {
+	        if (this.currentRecordId != null) {
+	            const confirmMsg = '当前正在编辑一条已有记录，确定要放弃未保存的修改并新建一条新记录吗？';
+	            if (!confirm(confirmMsg)) {
+	                return;
+	            }
+	        }
+	        this.resetAllPages();
+	        this.showRecordForm();
+	    }
 
     // 导出数据
     async exportData() {

@@ -37,6 +37,17 @@ body {
     margin-bottom: 10px;
 }
 
+.header-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.editor-status {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
 .header-actions {
     display: flex;
     gap: 10px;
@@ -357,6 +368,17 @@ body {
     margin-top: 10px;
 }
 
+/* 纱线录制按钮：隐藏原来的问号，改用“录”字作为图标 */
+.yarn-btn-audio {
+    position: relative;
+    font-size: 0; /* 不显示原文字/表情，避免变成问号 */
+}
+
+.yarn-btn-audio::before {
+    content: '录';
+    font-size: 18px; /* 实际显示的“录”字大小 */
+}
+
 /* 底部操作按钮 */
 .bottom-actions {
     display: flex;
@@ -411,6 +433,40 @@ body {
 .records-container {
     display: grid;
     gap: 15px;
+}
+
+/* Stack 画廊 */
+.stacks-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.stack-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #764ba2;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.stack-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+.stack-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.stack-meta,
+.stack-date {
+    font-size: 13px;
+    color: #666;
 }
 
 .record-card {

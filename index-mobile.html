@@ -41,34 +41,81 @@
         console.log('检测到设备类型:', device);
     </script>
 </head>
-<body>
-    <div class="container">
-        <!-- 页面容器 -->
-        <div id="pagesContainer"></div>
-        
-        <!-- 底部操作栏 -->
-        <div class="bottom-actions">
-            <button class="btn-primary" onclick="app.addPage()">➕ 增加页</button>
-            <button class="btn-success" onclick="app.saveAllPages()">💾 保存所有页</button>
-            <button class="btn-secondary" onclick="app.showRecordsList()">📋 查看历史</button>
-        </div>
-        
-        <!-- 历史记录列表 -->
-        <div id="recordsList" style="display: none;">
-            <div class="records-header">
-                <h2>📋 历史记录</h2>
-                <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="搜索记录...">
-                    <button onclick="app.searchRecords()">🔍</button>
-                </div>
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
-                    <button class="btn-secondary" style="flex: 1;" onclick="app.showRecordForm()">← 返回</button>
-                    <button class="btn-primary" style="flex: 1;" onclick="app.exportData()">📤 导出</button>
-                </div>
-            </div>
-            <div id="recordsContainer"></div>
-        </div>
-    </div>
+	<body>
+	    <div class="container">
+	        <!-- 编辑状态提示 -->
+	        <div id="editorStatus" style="margin-bottom: 8px; font-size: 14px; color: #4A5568;"></div>
+
+	        <!-- Stack 画廊（第 1 层） -->
+	        <div id="stacksView" style="display: none;">
+	            <div class="stacks-header-mobile">
+	                <h2>📚 堆画廊</h2>
+	                <button class="btn-secondary" onclick="app.createStack()">➕ 新建堆</button>
+	            </div>
+	            <div id="stacksContainer" class="stacks-container">
+	                <!-- 堆卡片将动态生成 -->
+	            </div>
+	        </div>
+
+	        <!-- 第 3 层：EP 多页编辑器 -->
+	        <!-- 编辑器顶部工具栏（返回按钮 + 标题） -->
+	        <div id="editorToolbar" class="editor-toolbar" style="display: none;">
+	            <div class="editor-toolbar-left">
+	                <button class="toolbar-back-btn" type="button" onclick="app.backToStackRecords()">← 返回</button>
+	                <div class="editor-toolbar-titles">
+	                    <h2 id="editorTitle">编辑记录</h2>
+	                    <span id="editorSubtitle" class="editor-subtitle">EP多页编辑器</span>
+	                </div>
+	            </div>
+	            <div class="editor-toolbar-right">
+	                <button class="toolbar-icon-btn" type="button" onclick="app.saveAllPages()">💾</button>
+	            </div>
+	        </div>
+
+	        <!-- 页面导航指示器（多页切换） -->
+	        <div id="pagesNavigation" class="pages-navigation" style="display: none;">
+	            <button class="page-nav-btn prev" type="button" onclick="app.goToPrevPage()">‹</button>
+	            <div id="pageIndicators" class="page-indicators">
+	                <!-- 页面指示点将动态生成 -->
+	            </div>
+	            <button class="page-nav-btn next" type="button" onclick="app.goToNextPage()">›</button>
+	        </div>
+
+	        <!-- 页面容器 -->
+	        <div id="pagesContainer"></div>
+
+		        <!-- 底部操作栏 -->
+		        <div class="bottom-actions">
+		            <button class="btn-primary" onclick="app.addPage()">➕ 增加页</button>
+		            <button class="btn-success" onclick="app.saveAllPages()">💾 保存所有页</button>
+		            <button class="btn-secondary" onclick="app.backToStackRecords()">📋 返回列表</button>
+		        </div>
+		        
+		        <!-- 历史记录列表（第 2 层：堆内记录画廊） -->
+		        <div id="recordsList" class="records-view" style="display: none;">
+		            <div class="records-header stack-toolbar">
+		                <div class="stack-toolbar-left">
+		                    <button class="toolbar-back-btn" type="button" onclick="app.showStacksView()">← 堆</button>
+		                    <div class="stack-toolbar-titles">
+		                        <h2 id="stackTitle">未分组</h2>
+		                        <span id="stackSubtitle" class="stack-subtitle">记录</span>
+		                    </div>
+		                </div>
+		                <div class="stack-toolbar-right">
+		                    <button class="toolbar-icon-btn" type="button">选择</button>
+		                    <button class="toolbar-icon-btn" type="button" onclick="app.exportData()">导出</button>
+		                    <button class="toolbar-icon-btn primary" type="button" onclick="app.startNewRecord()">＋</button>
+		                </div>
+		            </div>
+		            <div class="records-search-row">
+		                <div class="search-bar">
+		                    <input type="text" id="searchInput" placeholder="搜索记录...">
+		                    <button type="button" onclick="app.searchRecords()">🔍</button>
+		                </div>
+		            </div>
+		            <div id="recordsContainer" class="records-grid"></div>
+		        </div>
+	    </div>
     
     <!-- 模态框 -->
     <div id="modal">

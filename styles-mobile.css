@@ -403,13 +403,203 @@ body {
     box-shadow: var(--shadow-md);
 }
 
+/* Stack 画廊（手机版） */
+#stacksView {
+	    padding: 12px;
+	}
+
+/* 顶部简单标题，保持向后兼容 */
+.stacks-header-mobile {
+	    display: flex;
+	    justify-content: space-between;
+	    align-items: center;
+	    margin-bottom: 12px;
+	}
+
+.stacks-header-mobile h2 {
+	    font-size: 20px;
+	    font-weight: 700;
+	    color: #ffffff;
+	    letter-spacing: -0.4px;
+	}
+
+/* 堆 & 未分组记录的网格布局 */
+.stacks-container {
+	    display: grid;
+	    grid-template-columns: repeat(2, minmax(0, 1fr));
+	    gap: 14px;
+	    padding-bottom: 16px;
+	}
+
+@media (min-width: 430px) {
+	    .stacks-container {
+	        grid-template-columns: repeat(3, minmax(0, 1fr));
+	    }
+	}
+
+/* 堆叠卡片（第 1 层） */
+.stack-card {
+	    position: relative;
+	    background: transparent;
+	    border-radius: 18px;
+	    padding: 0;
+	    cursor: pointer;
+	    transition: transform 0.18s ease, box-shadow 0.18s ease;
+	}
+
+.stack-card:active {
+	    transform: scale(0.96);
+	}
+
+/* 堆叠缩略图：1~3 张图层叠加 */
+.stack-thumb {
+	    position: relative;
+	    width: 100%;
+	    padding-top: 75%; /* 4:3 */
+	    border-radius: 18px;
+	    overflow: hidden;
+	    background: var(--bg-tertiary);
+	    box-shadow: var(--shadow-lg);
+	}
+
+.stack-thumb-layer {
+	    position: absolute;
+	    inset: 0;
+	    border-radius: inherit;
+	    overflow: hidden;
+	    transform-origin: center center;
+	}
+
+.stack-thumb-layer.layer-1 {
+	    transform: translateY(6px);
+	    opacity: 0.55;
+	    filter: blur(1px);
+	}
+
+.stack-thumb-layer.layer-2 {
+	    transform: translateY(3px);
+	    opacity: 0.8;
+	}
+
+.stack-thumb-layer.layer-3 {
+	    transform: translateY(0);
+	    opacity: 1;
+	}
+
+.stack-thumb img {
+	    width: 100%;
+	    height: 100%;
+	    object-fit: cover;
+	    display: block;
+	}
+
+.stack-thumb-empty {
+	    background: linear-gradient(135deg, #4A5568, #A0AEC0);
+	}
+
+/* 堆信息文字 */
+.stack-info {
+	    margin-top: 6px;
+	    padding: 4px 2px;
+	}
+
+.stack-name {
+	    font-size: 15px;
+	    font-weight: 600;
+	    color: var(--text-primary);
+	}
+
+.stack-meta,
+.stack-date {
+	    margin-top: 2px;
+	    font-size: 12px;
+	    color: var(--text-secondary);
+	}
+
+/* 第 2 层：堆内记录画廊顶部工具栏 */
+.records-view {
+	    padding-top: 6px;
+	}
+
+.stack-toolbar {
+	    display: flex;
+	    justify-content: space-between;
+	    align-items: center;
+	    padding: 0 12px 8px;
+	}
+
+.stack-toolbar-left {
+	    display: flex;
+	    align-items: center;
+	    gap: 8px;
+	}
+
+.stack-toolbar-titles h2,
 .records-header h2 {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-    letter-spacing: -0.5px;
-}
+	    font-size: 22px;
+	    font-weight: 700;
+	    color: #ffffff;
+	    letter-spacing: -0.4px;
+	}
+
+.stack-subtitle {
+	    display: block;
+	    font-size: 12px;
+	    color: rgba(255, 255, 255, 0.7);
+	    margin-top: 2px;
+	}
+
+.toolbar-back-btn {
+	    min-width: 56px;
+	    padding: 6px 10px;
+	    border-radius: 999px;
+	    border: none;
+	    background: rgba(0, 0, 0, 0.35);
+	    color: #ffffff;
+	    font-size: 14px;
+	    font-weight: 500;
+	    cursor: pointer;
+	}
+
+.stack-toolbar-right {
+	    display: flex;
+	    align-items: center;
+	    gap: 8px;
+	}
+
+.toolbar-icon-btn {
+	    min-width: 56px;
+	    padding: 6px 10px;
+	    border-radius: 999px;
+	    border: none;
+	    background: rgba(0, 0, 0, 0.25);
+	    color: #ffffff;
+	    font-size: 14px;
+	    font-weight: 500;
+	    cursor: pointer;
+	}
+
+.toolbar-icon-btn.primary {
+	    background: #ffffff;
+	    color: #000000;
+	}
+
+.records-search-row {
+	    padding: 0 12px 4px;
+	}
+
+.records-grid {
+	    display: grid;
+	    grid-template-columns: repeat(2, minmax(0, 1fr));
+	    gap: 14px;
+	    padding: 4px 12px 16px;
+	}
+
+@media (min-width: 430px) {
+	    .records-grid {
+	        grid-template-columns: repeat(3, minmax(0, 1fr));
+	    }
+	}
 
 .search-bar {
     display: flex;
@@ -445,53 +635,72 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
+/* 记录卡片（堆内 + 未分组） */
 .record-card {
-    background: var(--bg-secondary);
-    backdrop-filter: blur(30px) saturate(120%);
-    -webkit-backdrop-filter: blur(30px) saturate(120%);
-    border-radius: 16px;
-    padding: 14px;
-    margin-bottom: 10px;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+	    background: transparent;
+	    border-radius: 18px;
+	    cursor: pointer;
+	    transition: transform 0.18s ease, box-shadow 0.18s ease;
+	}
 
 .record-card:active {
-    transform: scale(0.97);
-    box-shadow: var(--shadow-md);
-}
+	    transform: scale(0.96);
+	}
 
-.record-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
+/* 第一层未分组记录：与堆共用网格尺寸 */
+.root-record-card {
+	    margin: 0;
+	}
+
+.record-thumb {
+	    position: relative;
+	    width: 100%;
+	    padding-top: 75%;
+	    border-radius: 18px;
+	    overflow: hidden;
+	    background: var(--bg-tertiary);
+	    box-shadow: var(--shadow-lg);
+	}
+
+.record-thumb img {
+	    position: absolute;
+	    inset: 0;
+	    width: 100%;
+	    height: 100%;
+	    object-fit: cover;
+	    display: block;
+	}
+
+.record-thumb-placeholder {
+	    position: absolute;
+	    inset: 0;
+	    background: linear-gradient(135deg, #4A5568, #A0AEC0);
+	    opacity: 0.35;
+	}
+
+.record-meta {
+	    margin-top: 6px;
+	    padding: 4px 2px;
+	}
 
 .record-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
+	    font-size: 14px;
+	    font-weight: 600;
+	    color: var(--text-primary);
+	}
 
-.record-date {
-    font-size: 12px;
-    color: var(--text-tertiary);
-}
+.record-sub {
+	    margin-top: 2px;
+	    font-size: 12px;
+	    color: var(--text-secondary);
+	}
 
-.record-info {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-}
-
-.info-item {
-    font-size: 13px;
-    color: var(--text-secondary);
-    padding: 4px 0;
-}
+.records-empty {
+	    text-align: center;
+	    color: var(--text-tertiary);
+	    padding: 40px 0;
+	    font-size: 14px;
+	}
 
 /* 模态框 */
 #modal {
@@ -749,4 +958,120 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+/* ========================
+   编辑器顶部工具栏（第 3 层返回导航）
+   ======================== */
+.editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.editor-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.editor-toolbar-titles {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.editor-toolbar-titles h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.editor-toolbar .editor-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.editor-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ========================
+   多页导航指示器
+   ======================== */
+.pages-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.page-nav-btn:hover:not(:disabled) {
+    background: var(--accent-color);
+}
+
+.page-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.page-indicators {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 200px;
+}
+
+.page-indicator-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.page-indicator-dot:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.page-indicator-dot.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    transform: scale(1.2);
 }
