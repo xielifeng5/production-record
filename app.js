@@ -5,6 +5,7 @@ class App {
         this.pageCount = 0;
 	        this.currentTargetId = null;
 	        this.currentRecordId = null; // 当前正在编辑的记录ID，null 表示新建
+	        this.currentRecordName = ''; // 当前记录名称
 
 	        // Stack（项目）导航状态（第 1、2 层）
 	        this.currentStackId = null;      // 当前所在项目的 ID，null 表示“未分组”
@@ -18,6 +19,9 @@ class App {
 	        this.autoSaveDelay = 800; // 防抖延迟 800ms
 	        this.lastSavedData = null; // 用于检测数据是否变化
 	        this.isSaving = false; // 防止并发保存
+
+	        // OCR相关
+	        this.isOCRProcessing = false;
     }
 
 		    // 初始化应用
@@ -92,7 +96,7 @@ class App {
 
 	        // 获取当前所有页面数据
 	        const currentData = this.pages.map(page => this.getPageData(page.id));
-	        const currentDataStr = JSON.stringify(currentData);
+	        const currentDataStr = JSON.stringify({ pages: currentData, name: this.currentRecordName });
 
 	        // 检查数据是否有变化
 	        if (currentDataStr === this.lastSavedData) return;
@@ -110,6 +114,7 @@ class App {
 	                const existing = await db.getRecord(this.currentRecordId);
 	                if (existing) {
 	                    existing.pages = currentData;
+	                    existing.name = this.currentRecordName || existing.name || '';
 	                    existing.timestamp = Date.now();
 	                    existing.date = new Date().toISOString().split('T')[0];
 	                    await db.updateRecord(existing);
@@ -118,6 +123,7 @@ class App {
 	                // 新建记录并保存
 	                const record = {
 	                    pages: currentData,
+	                    name: this.currentRecordName || '',
 	                    stackId: this.currentStackId != null ? this.currentStackId : null
 	                };
 	                const newId = await db.saveRecord(record);
@@ -135,6 +141,129 @@ class App {
 	    // 触发自动保存（供外部调用，如拍照完成后）
 	    triggerAutoSave() {
 	        this.scheduleAutoSave();
+	    }
+
+	    // ========================
+	    // 记录名称管理
+	    // ========================
+
+	    // 记录名称输入处理
+	    onRecordNameInput(value) {
+	        this.currentRecordName = value.trim();
+	        this.scheduleAutoSave();
+	    }
+
+	    // 清空记录名称
+	    clearRecordName() {
+	        this.currentRecordName = '';
+	        const input = document.getElementById('recordNameInput');
+	        if (input) {
+	            input.value = '';
+	            input.focus();
+	        }
+	        this.scheduleAutoSave();
+	    }
+
+	    // 更新记录名称输入框显示
+	    updateRecordNameInput() {
+	        const input = document.getElementById('recordNameInput');
+	        if (input) {
+	            input.value = this.currentRecordName || '';
+	        }
+	    }
+
+	    // 从EP图片自动识别记录名称（OCR）
+	    async autoRecognizeRecordName() {
+	        // 检查是否有EP图片
+	        const firstPage = this.pages[0];
+	        if (!firstPage || !firstPage.epImage) {
+	            alert('请先上传EP文件名图片');
+	            return;
+	        }
+
+	        if (this.isOCRProcessing) {
+	            alert('正在识别中，请稍候...');
+	            return;
+	        }
+
+	        // 检查Tesseract是否加载
+	        if (typeof Tesseract === 'undefined') {
+	            alert('OCR库加载失败，请检查网络连接后刷新页面');
+	            return;
+	        }
+
+	        this.isOCRProcessing = true;
+	        const ocrBtn = document.querySelector('.record-name-ocr-btn');
+	        if (ocrBtn) {
+	            ocrBtn.textContent = '识别中...';
+	            ocrBtn.disabled = true;
+	        }
+
+	        try {
+	            console.log('开始OCR识别...');
+	            const result = await Tesseract.recognize(
+	                firstPage.epImage,
+	                'chi_sim+eng', // 中文简体 + 英文
+	                {
+	                    logger: m => console.log('OCR进度:', m.status, Math.round(m.progress * 100) + '%')
+	                }
+	            );
+
+	            const fullText = result.data.text.trim();
+	            console.log('OCR识别结果:', fullText);
+
+	            if (fullText) {
+	                // 提取第一个空格或换行前的文字作为名称
+	                const extractedName = this.extractRecordNameFromText(fullText);
+	                if (extractedName) {
+	                    this.currentRecordName = extractedName;
+	                    this.updateRecordNameInput();
+	                    this.scheduleAutoSave();
+	                    console.log('识别到记录名称:', extractedName);
+	                } else {
+	                    alert('未能从图片中提取有效名称');
+	                }
+	            } else {
+	                alert('未能识别图片中的文字，请手动输入名称');
+	            }
+	        } catch (error) {
+	            console.error('OCR识别失败:', error);
+	            alert('识别失败，请手动输入名称');
+	        } finally {
+	            this.isOCRProcessing = false;
+	            if (ocrBtn) {
+	                ocrBtn.textContent = '🔍 识别';
+	                ocrBtn.disabled = false;
+	            }
+	        }
+	    }
+
+	    // 从OCR文本中提取记录名称
+	    extractRecordNameFromText(text) {
+	        if (!text) return '';
+
+	        // 清理文本：移除多余空白
+	        let cleaned = text.replace(/[\r\n]+/g, ' ').trim();
+
+	        // 尝试提取第一个有意义的词组（空格前的内容）
+	        // 常见格式：EP12345 xxxx 或 12345-ABC xxxx
+	        const patterns = [
+	            /^(EP[\d\-]+)/i,           // EP开头的编号
+	            /^([\d\-]+[A-Za-z]*)/,     // 数字开头的编号
+	            /^([A-Za-z]+[\d\-]+)/,     // 字母开头的编号
+	            /^(\S+)/                    // 第一个非空白词
+	        ];
+
+	        for (const pattern of patterns) {
+	            const match = cleaned.match(pattern);
+	            if (match && match[1] && match[1].length >= 2) {
+	                // 限制长度
+	                return match[1].substring(0, 50);
+	            }
+	        }
+
+	        // 如果没有匹配，取前50个字符
+	        return cleaned.substring(0, 50);
 	    }
 
     // 添加新页面
@@ -782,12 +911,13 @@ class App {
 	                    console.log('原记录不存在，另存为新记录');
 	                } else {
 	                    existing.pages = allPagesData;
+	                    existing.name = this.currentRecordName || existing.name || '';
 	                    // 更新修改时间和日期，便于排序和按日期筛选
 	                    existing.timestamp = new Date().getTime();
 	                    existing.date = new Date().toISOString().split('T')[0];
 	                    await db.updateRecord(existing);
 	
-	                    this.lastSavedData = JSON.stringify(allPagesData);
+	                    this.lastSavedData = JSON.stringify({ pages: allPagesData, name: this.currentRecordName });
 	                    console.log(`记录已更新（共 ${this.pages.length} 页）`);
 	                    this.showSaveIndicator();
 	                    return;
@@ -797,13 +927,14 @@ class App {
 	            // 如果不是编辑模式，或原记录不存在，则保存为新记录
 	            const record = {
 	                pages: allPagesData,
+	                name: this.currentRecordName || '',
 	                // 将记录归属于当前项目（第 2 层），null 表示“未分组”
 	                stackId: this.currentStackId != null ? this.currentStackId : null
 	            };
-	
+
 	            const newId = await db.saveRecord(record);
 	            this.currentRecordId = newId;
-	            this.lastSavedData = JSON.stringify(allPagesData);
+	            this.lastSavedData = JSON.stringify({ pages: allPagesData, name: this.currentRecordName });
 	            console.log(`成功保存 ${this.pages.length} 页记录`);
 	            this.showSaveIndicator();
 
@@ -833,9 +964,11 @@ class App {
         this.pages = [];
         this.pageCount = 0;
 	        this.currentRecordId = null;
+	        this.currentRecordName = ''; // 清空记录名称
 	        document.getElementById('pagesContainer').innerHTML = '';
 	        this.addPage(false);
 	        this.updateEditorStatus();
+	        this.updateRecordNameInput(); // 更新输入框
 	    }
 
 	    // ========================
@@ -1226,8 +1359,9 @@ class App {
 	                alert('未找到该记录');
 	                return;
 	            }
-		            
+
 		            this.currentRecordId = id;
+		            this.currentRecordName = record.name || ''; // 加载记录名称
 
 			            // 同步当前项目信息，便于从编辑器返回项目列表
 			            this.currentStackId = record.stackId != null ? record.stackId : null;
@@ -1384,11 +1518,16 @@ class App {
 	        // 显示编辑器相关元素
 	        const editorToolbar = document.getElementById('editorToolbar');
 	        const pagesNavigation = document.getElementById('pagesNavigation');
+	        const recordNameBar = document.getElementById('recordNameBar');
 	        if (editorToolbar) editorToolbar.style.display = 'flex';
 	        if (pagesNavigation) pagesNavigation.style.display = 'flex';
+	        if (recordNameBar) recordNameBar.style.display = 'flex';
 
         document.getElementById('pagesContainer').style.display = 'flex';
         document.querySelector('.bottom-actions').style.display = 'flex';
+
+	        // 更新记录名称输入框
+	        this.updateRecordNameInput();
 
 	        this.updateEditorStatus();
 	        this.updatePageIndicators();

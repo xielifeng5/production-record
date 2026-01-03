@@ -72,6 +72,18 @@
 	            </div>
 	        </div>
 
+	        <!-- 记录名称输入区域 -->
+	        <div id="recordNameBar" class="record-name-bar" style="display: none;">
+	            <div class="record-name-input-wrapper">
+	                <input type="text" id="recordNameInput" class="record-name-input"
+	                       placeholder="请输入记录名称（或自动从EP图片识别）"
+	                       maxlength="50"
+	                       oninput="app.onRecordNameInput(this.value)">
+	                <button class="record-name-clear-btn" type="button" onclick="app.clearRecordName()" title="清空名称">×</button>
+	            </div>
+	            <button class="record-name-ocr-btn" type="button" onclick="app.autoRecognizeRecordName()" title="从EP图片自动识别">🔍 识别</button>
+	        </div>
+
 	        <!-- 页面导航指示器（多页切换） -->
 	        <div id="pagesNavigation" class="pages-navigation" style="display: none;">
 	            <button class="page-nav-btn prev" type="button" onclick="app.goToPrevPage()">↑</button>
@@ -131,6 +143,7 @@
 	    <input type="file" id="audioInput" accept="audio/*" capture="microphone" style="display: none;">
     
     <!-- 脚本文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="database.js"></script>
     <script src="media.js"></script>
     <script src="app.js"></script>
