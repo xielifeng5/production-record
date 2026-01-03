@@ -12,10 +12,10 @@
 	    <header class="app-header">
 	        <div class="header-main">
 	            <h1>🧵 提花织物生产记录系统</h1>
-	            <div id="editorStatus" class="editor-status">📚 当前：堆画廊</div>
+	            <div id="editorStatus" class="editor-status">📚 当前：项目画廊</div>
 	        </div>
 	        <div class="header-actions">
-	            <button class="btn btn-secondary" onclick="app.showStacksView()">🏠 堆画廊</button>
+	            <button class="btn btn-secondary" onclick="app.showStacksView()">🏠 项目画廊</button>
 	            <button class="btn btn-secondary" onclick="app.showRecordsList()">📋 历史记录</button>
 	            <button class="btn btn-secondary" onclick="app.startNewRecord()">🆕 新建记录</button>
 	            <button class="btn btn-secondary" onclick="app.exportData()">📤 导出数据</button>
@@ -27,11 +27,11 @@
 	        <!-- Stack 画廊（第 1 层） -->
 	        <div id="stacksView" class="section">
 	            <div class="list-header stacks-header">
-	                <h2>📚 堆画廊</h2>
-	                <button class="btn btn-secondary" onclick="app.createStack()">➕ 新建堆</button>
+	                <h2>📚 项目画廊</h2>
+	                <button class="btn btn-secondary" onclick="app.createStack()">➕ 新建项目</button>
 	            </div>
 	            <div id="stacksContainer" class="stacks-container">
-	                <!-- 堆卡片将动态生成 -->
+	                <!-- 项目卡片将动态生成 -->
 	            </div>
 	        </div>
 
@@ -46,7 +46,7 @@
                 <button class="btn btn-primary btn-large" onclick="app.saveAllPages()">💾 保存所有页</button>
             </div>
 
-	        <!-- 历史记录列表（第 2 层：堆内记录） -->
+	        <!-- 历史记录列表（第 2 层：项目内记录） -->
 	        <div id="recordsList" class="section" style="display: none;">
 	            <div class="list-header records-header">
 	                <h2>历史记录</h2>

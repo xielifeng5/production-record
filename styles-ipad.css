@@ -1,4 +1,4 @@
-/* iPad 12.9寸版样式 - 苹果风格毛玻璃设计（灰色调） */
+/* iPad 12.9寸版样式 - 苹果风格毛玻璃设计（深灰色主题） */
 
 :root {
     --primary-color: #5B9BD5;
@@ -6,17 +6,18 @@
     --success-color: #6C9A8B;
     --warning-color: #D4A574;
     --danger-color: #C85A54;
-    --bg-primary: rgba(245, 245, 247, 0.45);
-    --bg-secondary: rgba(255, 255, 255, 0.35);
-    --bg-tertiary: rgba(255, 255, 255, 0.2);
-    --text-primary: #1C1C1E;
-    --text-secondary: #48484A;
-    --text-tertiary: #8E8E93;
-    --border-color: rgba(60, 60, 67, 0.12);
-    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.16);
-    --button-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    --accent-color: #5B9BD5;
+    --bg-primary: rgba(44, 44, 46, 0.85);
+    --bg-secondary: rgba(58, 58, 60, 0.75);
+    --bg-tertiary: rgba(72, 72, 74, 0.6);
+    --text-primary: #F5F5F7;
+    --text-secondary: #A1A1A6;
+    --text-tertiary: #6E6E73;
+    --border-color: rgba(255, 255, 255, 0.12);
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.3);
+    --button-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 * {
@@ -28,10 +29,10 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
-    background: linear-gradient(135deg, #4A5568 0%, #A0AEC0 100%);
+    background: linear-gradient(135deg, #1C1C1E 0%, #2C2C2E 50%, #3A3A3C 100%);
     min-height: 100vh;
     padding: 20px;
-    font-size: 19px; /* 字体整体放大，iPad 上更清晰 */
+    font-size: 22px; /* 字体整体放大+3px，iPad 上更清晰 */
     color: var(--text-primary);
     overflow-x: hidden;
 }
@@ -42,14 +43,14 @@ body {
     padding: 0;
 }
 
-/* 页面滑动容器：同一 EP 横向翻页 */
+/* 页面滑动容器：同一 EP 纵向翻页 */
 #pagesContainer {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 20px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 16px;
 }
@@ -80,9 +81,9 @@ body {
     position: relative;
 }
 
-/* 每一页占满可视宽度，配合横向滑动 */
+/* 每一页占满可视高度，配合纵向滑动 */
 #pagesContainer .page-wrapper {
-    min-width: 100%;
+    min-height: 100vh;
     scroll-snap-align: start;
 }
 
@@ -97,7 +98,7 @@ body {
 
 .page-number,
 .page-title {
-    font-size: 24px;
+    font-size: 27px;
     font-weight: 700;
     color: var(--primary-color);
     letter-spacing: -0.5px;
@@ -105,13 +106,13 @@ body {
 
 .delete-page-btn,
 .page-delete {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background: var(--danger-color);
     color: white;
     border: none;
-    font-size: 24px;
+    font-size: 27px;
     line-height: 1;
     cursor: pointer;
     display: flex;
@@ -135,7 +136,7 @@ body {
 
 /* 区块标题 */
 .section-title {
-    font-size: 20px;
+    font-size: 23px;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 12px;
@@ -168,7 +169,7 @@ body {
     color: white;
     border: none;
     border-radius: 16px;
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
@@ -1057,13 +1058,13 @@ body {
 }
 
 .page-nav-btn {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     color: #ffffff;
-    font-size: 24px;
+    font-size: 27px;
     font-weight: 600;
     cursor: pointer;
     display: flex;

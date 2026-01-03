@@ -49,11 +49,11 @@
 	        <!-- Stack 画廊（第 1 层） -->
 	        <div id="stacksView" style="display: none;">
 	            <div class="stacks-header-mobile">
-	                <h2>📚 堆画廊</h2>
-	                <button class="btn-secondary" onclick="app.createStack()">➕ 新建堆</button>
+	                <h2>📚 项目画廊</h2>
+	                <button class="btn-secondary" onclick="app.createStack()">➕ 新建项目</button>
 	            </div>
 	            <div id="stacksContainer" class="stacks-container">
-	                <!-- 堆卡片将动态生成 -->
+	                <!-- 项目卡片将动态生成 -->
 	            </div>
 	        </div>
 
@@ -74,11 +74,11 @@
 
 	        <!-- 页面导航指示器（多页切换） -->
 	        <div id="pagesNavigation" class="pages-navigation" style="display: none;">
-	            <button class="page-nav-btn prev" type="button" onclick="app.goToPrevPage()">‹</button>
+	            <button class="page-nav-btn prev" type="button" onclick="app.goToPrevPage()">↑</button>
 	            <div id="pageIndicators" class="page-indicators">
 	                <!-- 页面指示点将动态生成 -->
 	            </div>
-	            <button class="page-nav-btn next" type="button" onclick="app.goToNextPage()">›</button>
+	            <button class="page-nav-btn next" type="button" onclick="app.goToNextPage()">↓</button>
 	        </div>
 
 	        <!-- 页面容器 -->
@@ -91,11 +91,11 @@
 		            <button class="btn-secondary" onclick="app.backToStackRecords()">📋 返回列表</button>
 		        </div>
 		        
-		        <!-- 历史记录列表（第 2 层：堆内记录画廊） -->
+		        <!-- 历史记录列表（第 2 层：项目内记录画廊） -->
 		        <div id="recordsList" class="records-view" style="display: none;">
 		            <div class="records-header stack-toolbar">
 		                <div class="stack-toolbar-left">
-		                    <button class="toolbar-back-btn" type="button" onclick="app.showStacksView()">← 堆</button>
+		                    <button class="toolbar-back-btn" type="button" onclick="app.showStacksView()">← 项目</button>
 		                    <div class="stack-toolbar-titles">
 		                        <h2 id="stackTitle">未分组</h2>
 		                        <span id="stackSubtitle" class="stack-subtitle">记录</span>

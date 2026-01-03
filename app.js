@@ -6,8 +6,8 @@ class App {
 	        this.currentTargetId = null;
 	        this.currentRecordId = null; // 当前正在编辑的记录ID，null 表示新建
 
-	        // Stack（堆）导航状态（第 1、2 层）
-	        this.currentStackId = null;      // 当前所在堆的 ID，null 表示“未分组”
+	        // Stack（项目）导航状态（第 1、2 层）
+	        this.currentStackId = null;      // 当前所在项目的 ID，null 表示“未分组”
 	        this.currentStackName = '未分组'; // 仅用于界面展示
 
 	        // 多页编辑器导航状态
@@ -23,10 +23,10 @@ class App {
 		            const stacksViewEl = document.getElementById('stacksView');
 		
 		            if (stacksViewEl) {
-		                // 桌面版：有堆画廊，显示堆画廊（第 1 层）
+		                // 桌面版：有项目画廊，显示项目画廊（第 1 层）
 		                this.showStacksView();
 		            } else {
-		                // 手机版：没有堆画廊，直接进入编辑器（新建一条空记录）
+		                // 手机版：没有项目画廊，直接进入编辑器（新建一条空记录）
 		                this.resetAllPages();
 		            }
 		        } catch (error) {
@@ -681,7 +681,7 @@ class App {
 	            // 如果不是编辑模式，或原记录不存在，则保存为新记录
 	            const record = {
 	                pages: allPagesData,
-	                // 将记录归属于当前堆（第 2 层），null 表示“未分组”
+	                // 将记录归属于当前项目（第 2 层），null 表示“未分组”
 	                stackId: this.currentStackId != null ? this.currentStackId : null
 	            };
 	
@@ -711,7 +711,7 @@ class App {
 	    }
 
 	    // ========================
-	    // Stack（堆）与列表视图
+	    // Stack（项目）与列表视图
 	    // ========================
 
 	    // 显示 Stack 画廊（第 1 层）
@@ -726,26 +726,26 @@ class App {
 	        if (recordsListEl) recordsListEl.style.display = 'none';
 	        if (stacksViewEl) stacksViewEl.style.display = 'block';
 
-	        // 回到堆画廊时，清空当前堆选择
+	        // 回到项目画廊时，清空当前项目选择
 	        this.currentStackId = null;
 	        this.currentStackName = '未分组';
 
 	        const statusEl = document.getElementById('editorStatus');
 	        if (statusEl) {
-	            statusEl.textContent = '📚 当前：堆画廊';
+	            statusEl.textContent = '📚 当前：项目画廊';
 	        }
 
 	        await this.loadStacks();
 	    }
 
-	    // 加载所有堆及其下记录数量
+	    // 加载所有项目及其下记录数量
 	    async loadStacks() {
 	        try {
 	            const stacks = db.getAllStacks ? await db.getAllStacks() : [];
 	            const records = await db.getAllRecords();
 	            this.displayStacks(stacks, records);
 	        } catch (error) {
-	            console.error('加载堆失败:', error);
+	            console.error('加载项目失败:', error);
 	        }
 	    }
 
@@ -774,7 +774,7 @@ class App {
 
 		        container.innerHTML = '';
 
-		        // 已命名的堆（类似 Procreate 的“堆叠”卡片）
+		        // 已命名的项目（类似 Procreate 的“堆叠”卡片）
 		        if (stacks && stacks.length > 0) {
 		            const sortedStacks = [...stacks].sort((a, b) => {
 		                const at = a.createdAt || 0;
@@ -788,7 +788,7 @@ class App {
 		                const latestTs = list.length > 0 ? Math.max(...list.map(r => r.timestamp || 0)) : 0;
 		                const latestStr = latestTs ? new Date(latestTs).toLocaleString('zh-CN') : '';
 
-		                // 取前 1~3 条记录的首张 EP 图片作为堆叠缩略图
+		                // 取前 1~3 条记录的首张 EP 图片作为项目缩略图
 		                const previewRecords = list.slice(0, 3);
 		                const previewImgs = previewRecords
 		                    .map(r => (r.pages && r.pages[0] && r.pages[0].epImage) ? r.pages[0].epImage : null)
@@ -798,17 +798,17 @@ class App {
 		                    ? `<div class="stack-thumb">
 		                            ${previewImgs.map((img, idx) => `
 		                                <div class="stack-thumb-layer layer-${idx + 1}">
-		                                    <img src="${img}" alt="堆缩略图">
+		                                    <img src="${img}" alt="项目缩略图">
 		                                </div>
 		                            `).join('')}
 		                       </div>`
 		                    : `<div class="stack-thumb stack-thumb-empty"></div>`;
 
 		                container.innerHTML += `
-		                    <div class="stack-card" onclick="app.openStack(${stack.id})">
+		                    <div class="stack-card" data-stack-id="${stack.id}" onclick="app.openStack(${stack.id})">
 		                        ${thumbHtml}
 		                        <div class="stack-info">
-		                            <div class="stack-name">${stack.name || '未命名堆'}</div>
+		                            <div class="stack-name">${stack.name || '未命名项目'}</div>
 		                            <div class="stack-meta">${count} 条记录${latestStr ? ' · ' + latestStr : ''}</div>
 		                        </div>
 		                    </div>
@@ -845,33 +845,33 @@ class App {
 		        }
 		    }
 
-	    // 打开指定堆（第 2 层：堆内记录列表）
+	    // 打开指定项目（第 2 层：项目内记录列表）
 	    async openStack(stackId) {
 	        try {
 	            this.currentStackId = stackId != null ? stackId : null;
-	
+
 	            if (this.currentStackId === null) {
 	                this.currentStackName = '未分组';
 	            } else if (db.getStack) {
 	                const stack = await db.getStack(this.currentStackId);
-	                this.currentStackName = stack && stack.name ? stack.name : '未命名堆';
+	                this.currentStackName = stack && stack.name ? stack.name : '未命名项目';
 	            } else {
-	                this.currentStackName = '未命名堆';
+	                this.currentStackName = '未命名项目';
 	            }
-	
+
 	            const allRecords = await db.getAllRecords();
 	            const records = allRecords.filter(r => {
 	                const sid = r.stackId != null ? r.stackId : null;
 	                return this.currentStackId === null ? sid === null : sid === this.currentStackId;
 	            });
-	
+
 	            this.showStackRecords(records);
 	        } catch (error) {
-	            console.error('打开堆失败:', error);
+	            console.error('打开项目失败:', error);
 	        }
 	    }
 
-		    // 渲染堆内记录列表（第 2 层）
+		    // 渲染项目内记录列表（第 2 层）
 		    showStackRecords(records) {
 		        const stacksViewEl = document.getElementById('stacksView');
 		        const recordsListEl = document.getElementById('recordsList');
@@ -888,7 +888,7 @@ class App {
 		        if (headerTitleEl) {
 		            headerTitleEl.textContent = this.currentStackId === null
 		                ? '未分组'
-		                : (this.currentStackName || '未命名堆');
+		                : (this.currentStackName || '未命名项目');
 		        }
 
 		        const statusEl = document.getElementById('editorStatus');
@@ -896,31 +896,31 @@ class App {
 		            if (this.currentStackId === null) {
 		                statusEl.textContent = '📂 当前：未分组记录列表';
 		            } else {
-		                statusEl.textContent = `📂 当前堆：${this.currentStackName || '未命名堆'}`;
+		                statusEl.textContent = `📂 当前项目：${this.currentStackName || '未命名项目'}`;
 		            }
 		        }
 
 		        this.displayRecords(records || []);
 		    }
 
-	    // 新建堆
+	    // 新建项目
 	    async createStack() {
-	        const name = prompt('请输入新堆的名称：');
+	        const name = prompt('请输入新项目的名称：');
 	        if (!name) return;
-	
+
 	        try {
 	            const id = await db.saveStack({ name });
 	            this.currentStackId = id;
 	            this.currentStackName = name;
-	            // 创建后直接进入该堆的记录列表（目前为空）
+	            // 创建后直接进入该项目的记录列表（目前为空）
 	            await this.openStack(id);
 	        } catch (error) {
-	            console.error('创建堆失败:', error);
-	            alert('创建堆失败，请重试');
+	            console.error('创建项目失败:', error);
+	            alert('创建项目失败，请重试');
 	        }
 	    }
 
-	    // 加载历史记录（兼容旧调用，基于当前堆过滤）
+	    // 加载历史记录（兼容旧调用，基于当前项目过滤）
 	    async loadRecords(stackId = this.currentStackId) {
 	        try {
 	            const all = await db.getAllRecords();
@@ -935,7 +935,7 @@ class App {
 	        }
 	    }
 
-		    // 显示记录列表（第 2 层堆内画廊）
+		    // 显示记录列表（第 2 层项目内画廊）
 		    displayRecords(records) {
 		        const container = document.getElementById('recordsContainer');
 		        if (!container) return;
@@ -959,7 +959,7 @@ class App {
 		            const thumb = record.pages && record.pages[0] && record.pages[0].epImage;
 
 		            return `
-		                <div class="record-card" onclick="app.editRecord(${record.id})">
+		                <div class="record-card" data-record-id="${record.id}" onclick="app.editRecord(${record.id})">
 		                    <div class="record-thumb">
 		                        ${thumb
 		                            ? `<img src="${thumb}" alt="记录缩略图">`
@@ -987,19 +987,19 @@ class App {
 	            if (record.stackId != null && db.getStack) {
 	                try {
 	                    const stack = await db.getStack(record.stackId);
-	                    stackLabel = stack && stack.name ? stack.name : `堆 #${record.stackId}`;
+	                    stackLabel = stack && stack.name ? stack.name : `项目 #${record.stackId}`;
 	                } catch (e) {
-	                    console.warn('获取堆信息失败', e);
-	                    stackLabel = `堆 #${record.stackId}`;
+	                    console.warn('获取项目信息失败', e);
+	                    stackLabel = `项目 #${record.stackId}`;
 	                }
 	            } else if (record.stackId != null) {
-	                stackLabel = `堆 #${record.stackId}`;
+	                stackLabel = `项目 #${record.stackId}`;
 	            }
-	
+
 	            let html = `
 	                <h2>📄 ${title}</h2>
 	                <p style="color: #666; margin-bottom: 6px;">记录时间: ${date}</p>
-	                <p style="color: #666; margin-bottom: 20px;">所在堆: ${stackLabel}</p>
+	                <p style="color: #666; margin-bottom: 20px;">所在项目: ${stackLabel}</p>
 	            `;
 
             if (record.pages && record.pages.length > 0) {
@@ -1093,21 +1093,21 @@ class App {
 	            }
 		            
 		            this.currentRecordId = id;
-			
-			            // 同步当前堆信息，便于从编辑器返回堆列表
+
+			            // 同步当前项目信息，便于从编辑器返回项目列表
 			            this.currentStackId = record.stackId != null ? record.stackId : null;
 			            if (this.currentStackId === null) {
 			                this.currentStackName = '未分组';
 			            } else if (db.getStack) {
 			                try {
 			                    const stack = await db.getStack(this.currentStackId);
-			                    this.currentStackName = stack && stack.name ? stack.name : '未命名堆';
+			                    this.currentStackName = stack && stack.name ? stack.name : '未命名项目';
 			                } catch (e) {
-			                    console.warn('获取堆信息失败', e);
-			                    this.currentStackName = '未命名堆';
+			                    console.warn('获取项目信息失败', e);
+			                    this.currentStackName = '未命名项目';
 			                }
 			            } else {
-			                this.currentStackName = '未命名堆';
+			                this.currentStackName = '未命名项目';
 			            }
 
 	            // 清空当前编辑内容
@@ -1337,7 +1337,7 @@ class App {
 	        }
 	    }
 
-	    // 从编辑器返回堆内记录列表（第 3 层 → 第 2 层）
+	    // 从编辑器返回项目内记录列表（第 3 层 → 第 2 层）
 	    async backToStackRecords() {
 	        // 如果有未保存的更改，提示用户
 	        if (this.pages.length > 0) {
@@ -1366,7 +1366,7 @@ class App {
 	        this.currentPageIndex = 0;
 	        document.getElementById('pagesContainer').innerHTML = '';
 
-	        // 返回第 2 层（堆内记录列表）
+	        // 返回第 2 层（项目内记录列表）
 	        await this.openStack(this.currentStackId);
 	    }
 
@@ -1446,5 +1446,237 @@ window.onclick = (event) => {
     if (event.target === modal) {
         app.closeModal();
     }
+    // 点击其他地方关闭上下文菜单
+    const contextMenu = document.getElementById('contextMenu');
+    if (contextMenu && !contextMenu.contains(event.target)) {
+        contextMenu.style.display = 'none';
+    }
 };
+
+// ========================
+// 长按交互功能（iOS风格上下文菜单）
+// ========================
+
+// 剪贴板存储
+let clipboard = { type: null, data: null };
+
+// 创建上下文菜单元素
+function createContextMenu() {
+    let menu = document.getElementById('contextMenu');
+    if (!menu) {
+        menu = document.createElement('div');
+        menu.id = 'contextMenu';
+        menu.className = 'context-menu';
+        menu.innerHTML = `
+            <div class="context-menu-item" data-action="rename">✏️ 重命名</div>
+            <div class="context-menu-item" data-action="copy">📋 复制</div>
+            <div class="context-menu-item" data-action="paste">📥 粘贴</div>
+            <div class="context-menu-divider"></div>
+            <div class="context-menu-item danger" data-action="delete">🗑️ 删除</div>
+        `;
+        document.body.appendChild(menu);
+
+        // 菜单项点击事件
+        menu.addEventListener('click', (e) => {
+            const item = e.target.closest('.context-menu-item');
+            if (!item) return;
+            const action = item.dataset.action;
+            const targetType = menu.dataset.targetType;
+            const targetId = menu.dataset.targetId;
+            handleContextAction(action, targetType, parseInt(targetId));
+            menu.style.display = 'none';
+        });
+    }
+    return menu;
+}
+
+// 显示上下文菜单
+function showContextMenu(x, y, type, id) {
+    const menu = createContextMenu();
+    menu.dataset.targetType = type;
+    menu.dataset.targetId = id;
+
+    // 更新粘贴按钮状态
+    const pasteItem = menu.querySelector('[data-action="paste"]');
+    if (clipboard.type === type && clipboard.data) {
+        pasteItem.style.display = 'block';
+    } else {
+        pasteItem.style.display = 'none';
+    }
+
+    // 定位菜单
+    menu.style.display = 'block';
+    const menuRect = menu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // 防止菜单超出屏幕
+    if (x + menuRect.width > viewportWidth) {
+        x = viewportWidth - menuRect.width - 10;
+    }
+    if (y + menuRect.height > viewportHeight) {
+        y = viewportHeight - menuRect.height - 10;
+    }
+
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+}
+
+// 处理上下文菜单操作
+async function handleContextAction(action, type, id) {
+    switch (action) {
+        case 'rename':
+            if (type === 'stack') {
+                const stack = await db.getStack(id);
+                const newName = prompt('请输入新的项目名称：', stack?.name || '');
+                if (newName !== null && newName.trim()) {
+                    await db.saveStack({ ...stack, id, name: newName.trim() });
+                    app.loadStacks();
+                }
+            } else if (type === 'record') {
+                const record = await db.getRecord(id);
+                const newName = prompt('请输入新的记录名称：', record?.name || '');
+                if (newName !== null && newName.trim()) {
+                    record.name = newName.trim();
+                    await db.saveRecord(record);
+                    app.openStack(app.currentStackId);
+                }
+            }
+            break;
+
+        case 'copy':
+            if (type === 'stack') {
+                const stack = await db.getStack(id);
+                clipboard = { type: 'stack', data: stack };
+            } else if (type === 'record') {
+                const record = await db.getRecord(id);
+                clipboard = { type: 'record', data: record };
+            }
+            break;
+
+        case 'paste':
+            if (clipboard.type === 'stack' && clipboard.data) {
+                const newStack = { ...clipboard.data };
+                delete newStack.id;
+                newStack.name = (newStack.name || '未命名项目') + ' 副本';
+                newStack.createdAt = Date.now();
+                await db.saveStack(newStack);
+                app.loadStacks();
+            } else if (clipboard.type === 'record' && clipboard.data) {
+                const newRecord = JSON.parse(JSON.stringify(clipboard.data));
+                delete newRecord.id;
+                newRecord.name = (newRecord.name || '未命名记录') + ' 副本';
+                newRecord.timestamp = Date.now();
+                newRecord.stackId = app.currentStackId;
+                await db.saveRecord(newRecord);
+                app.openStack(app.currentStackId);
+            }
+            break;
+
+        case 'delete':
+            if (type === 'stack') {
+                if (confirm('确定要删除这个项目吗？项目内的所有记录也会被删除。')) {
+                    // 删除项目内所有记录
+                    const allRecords = await db.getAllRecords();
+                    const stackRecords = allRecords.filter(r => r.stackId === id);
+                    for (const record of stackRecords) {
+                        await db.deleteRecord(record.id);
+                    }
+                    await db.deleteStack(id);
+                    app.loadStacks();
+                }
+            } else if (type === 'record') {
+                if (confirm('确定要删除这条记录吗？')) {
+                    await db.deleteRecord(id);
+                    app.openStack(app.currentStackId);
+                }
+            }
+            break;
+    }
+}
+
+// 初始化长按事件
+function initLongPressEvents() {
+    let longPressTimer = null;
+    let longPressTarget = null;
+    let startX = 0;
+    let startY = 0;
+
+    document.addEventListener('touchstart', (e) => {
+        const stackCard = e.target.closest('.stack-card');
+        const recordCard = e.target.closest('.record-card');
+
+        if (stackCard || recordCard) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            longPressTarget = stackCard || recordCard;
+
+            longPressTimer = setTimeout(() => {
+                // 震动反馈（如果支持）
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+
+                const rect = longPressTarget.getBoundingClientRect();
+                const menuX = rect.left + rect.width / 2;
+                const menuY = rect.top;
+
+                if (stackCard) {
+                    const stackId = stackCard.dataset.stackId;
+                    if (stackId) {
+                        showContextMenu(menuX, menuY, 'stack', stackId);
+                    }
+                } else if (recordCard) {
+                    const recordId = recordCard.dataset.recordId;
+                    if (recordId) {
+                        showContextMenu(menuX, menuY, 'record', recordId);
+                    }
+                }
+
+                // 阻止默认点击事件
+                longPressTarget.dataset.longPressed = 'true';
+            }, 500);
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (longPressTimer) {
+            const moveX = Math.abs(e.touches[0].clientX - startX);
+            const moveY = Math.abs(e.touches[0].clientY - startY);
+            if (moveX > 10 || moveY > 10) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchcancel', () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }, { passive: true });
+
+    // 阻止长按后的点击事件
+    document.addEventListener('click', (e) => {
+        const card = e.target.closest('.stack-card, .record-card');
+        if (card && card.dataset.longPressed === 'true') {
+            e.stopPropagation();
+            e.preventDefault();
+            delete card.dataset.longPressed;
+        }
+    }, true);
+}
+
+// 页面加载后初始化长按事件
+document.addEventListener('DOMContentLoaded', () => {
+    initLongPressEvents();
+});
 
