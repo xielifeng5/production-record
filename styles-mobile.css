@@ -27,14 +27,49 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
     background: linear-gradient(135deg, #1C1C1E 0%, #2C2C2E 50%, #3A3A3C 100%);
     min-height: 100vh;
+    min-height: -webkit-fill-available;
     padding: 10px;
     font-size: 19px;
     color: var(--text-primary);
     overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+}
+
+/* 保存成功指示器 */
+.save-indicator {
+    position: fixed;
+    top: env(safe-area-inset-top, 10px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    background: rgba(40, 167, 69, 0.95);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10001;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.save-indicator.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(10px);
 }
 
 .container {
@@ -1075,4 +1110,79 @@ body {
     background: var(--accent-color);
     border-color: var(--accent-color);
     transform: scale(1.2);
+}
+
+/* ========================
+   相机图标按钮优化
+   ======================== */
+.btn-camera,
+.btn[onclick*="upload"],
+.btn[onclick*="capture"],
+.btn[onclick*="Photo"],
+.inline-controls .btn {
+    min-width: 56px;
+    min-height: 56px;
+    font-size: 24px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-camera:active,
+.btn[onclick*="upload"]:active,
+.btn[onclick*="capture"]:active,
+.btn[onclick*="Photo"]:active,
+.inline-controls .btn:active {
+    transform: scale(0.95);
+}
+
+/* EP上传区域大图标 */
+.ep-upload-section .upload-btn,
+.form-row .btn-primary[onclick*="upload"] {
+    width: 100%;
+    min-height: 60px;
+    font-size: 20px;
+    gap: 10px;
+}
+
+/* 滚动优化 */
+.container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+}
+
+#pagesContainer {
+    touch-action: pan-y;
+    will-change: scroll-position;
+}
+
+/* GPU加速优化 */
+.page-wrapper {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* 减少重排重绘 */
+.ep-image-preview img,
+.media-preview img,
+.media-preview video {
+    content-visibility: auto;
+    contain-intrinsic-size: 200px 150px;
+}
+
+/* 懒加载图片占位 */
+.lazy-image {
+    background: var(--bg-tertiary);
+    min-height: 100px;
+}
+
+.lazy-image.loaded {
+    background: transparent;
 }

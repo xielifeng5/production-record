@@ -145,15 +145,8 @@
 	            }
 	        });
 	
-	        // 防止页面滚动时的橡皮筋效果（iOS）
-	        document.body.addEventListener('touchmove', function(e) {
-	            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-	                const scrollable = e.target.closest('.modal-content, #recordsContainer');
-	                if (!scrollable) {
-	                    e.preventDefault();
-	                }
-	            }
-	        }, { passive: false });
+	        // 允许页面自然滚动，仅在模态框打开时限制背景滚动
+	        // 移除了阻止滚动的代码以确保流畅的滑动体验
 	
 	        // 注册Service Worker (PWA支持)
 	        if ('serviceWorker' in navigator) {

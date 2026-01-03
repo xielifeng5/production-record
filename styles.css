@@ -5,11 +5,42 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+}
+
+/* 保存成功指示器 */
+.save-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(40, 167, 69, 0.95);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10001;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.save-indicator.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .app-container {
@@ -685,5 +716,56 @@ body {
     .context-menu-divider {
         background: rgba(255, 255, 255, 0.1);
     }
+}
+
+/* ========================
+   性能优化
+   ======================== */
+
+/* GPU加速 */
+.page-wrapper,
+.stack-card,
+.record-card {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* 减少重排重绘 */
+.ep-image-preview img,
+.media-preview img,
+.media-preview video {
+    content-visibility: auto;
+    contain-intrinsic-size: 300px 200px;
+}
+
+/* 滚动优化 */
+.main-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+}
+
+#pagesContainer {
+    touch-action: pan-y;
+}
+
+/* 相机图标按钮 */
+.btn[onclick*="upload"],
+.btn[onclick*="capture"],
+.btn[onclick*="Photo"] {
+    min-height: 44px;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn[onclick*="upload"]:active,
+.btn[onclick*="capture"]:active,
+.btn[onclick*="Photo"]:active {
+    transform: scale(0.97);
 }
 

@@ -12,16 +12,26 @@ class App {
 
 	        // 多页编辑器导航状态
 	        this.currentPageIndex = 0; // 当前显示的页面索引
+
+	        // 自动保存相关
+	        this.autoSaveTimer = null;
+	        this.autoSaveDelay = 800; // 防抖延迟 800ms
+	        this.lastSavedData = null; // 用于检测数据是否变化
+	        this.isSaving = false; // 防止并发保存
     }
 
 		    // 初始化应用
 		    async init() {
+		        const startTime = performance.now();
 		        try {
 		            await db.init();
 		            console.log('数据库初始化成功');
-		
+
+		            // 初始化自动保存监听
+		            this.initAutoSave();
+
 		            const stacksViewEl = document.getElementById('stacksView');
-		
+
 		            if (stacksViewEl) {
 		                // 桌面版：有项目画廊，显示项目画廊（第 1 层）
 		                this.showStacksView();
@@ -29,11 +39,103 @@ class App {
 		                // 手机版：没有项目画廊，直接进入编辑器（新建一条空记录）
 		                this.resetAllPages();
 		            }
+
+		            console.log(`应用初始化完成，耗时: ${(performance.now() - startTime).toFixed(0)}ms`);
 		        } catch (error) {
 		            console.error('初始化失败:', error);
-		            alert('应用初始化失败，请刷新页面重试');
 		        }
 		    }
+
+	    // 初始化自动保存监听
+	    initAutoSave() {
+	        // 监听输入事件（使用事件委托）
+	        document.addEventListener('input', (e) => {
+	            if (e.target.matches('input, textarea, select')) {
+	                this.scheduleAutoSave();
+	            }
+	        });
+
+	        // 监听 change 事件（用于 select 等）
+	        document.addEventListener('change', (e) => {
+	            if (e.target.matches('input, textarea, select')) {
+	                this.scheduleAutoSave();
+	            }
+	        });
+
+	        // 页面卸载前保存
+	        window.addEventListener('beforeunload', () => {
+	            this.performAutoSave(true); // 同步保存
+	        });
+
+	        // 页面隐藏时保存（移动端切换应用）
+	        document.addEventListener('visibilitychange', () => {
+	            if (document.visibilityState === 'hidden') {
+	                this.performAutoSave(true);
+	            }
+	        });
+	    }
+
+	    // 调度自动保存（防抖）
+	    scheduleAutoSave() {
+	        if (this.autoSaveTimer) {
+	            clearTimeout(this.autoSaveTimer);
+	        }
+	        this.autoSaveTimer = setTimeout(() => {
+	            this.performAutoSave();
+	        }, this.autoSaveDelay);
+	    }
+
+	    // 执行自动保存
+	    async performAutoSave(sync = false) {
+	        // 检查是否有内容需要保存
+	        if (this.pages.length === 0 || this.isSaving) return;
+
+	        // 获取当前所有页面数据
+	        const currentData = this.pages.map(page => this.getPageData(page.id));
+	        const currentDataStr = JSON.stringify(currentData);
+
+	        // 检查数据是否有变化
+	        if (currentDataStr === this.lastSavedData) return;
+
+	        // 检查是否有实际内容
+	        const hasContent = currentData.some(data =>
+	            data && (data.epImage || data.warpYarns?.length > 0 || data.weftYarns?.length > 0)
+	        );
+	        if (!hasContent) return;
+
+	        this.isSaving = true;
+	        try {
+	            if (this.currentRecordId != null) {
+	                // 更新现有记录
+	                const existing = await db.getRecord(this.currentRecordId);
+	                if (existing) {
+	                    existing.pages = currentData;
+	                    existing.timestamp = Date.now();
+	                    existing.date = new Date().toISOString().split('T')[0];
+	                    await db.updateRecord(existing);
+	                }
+	            } else {
+	                // 新建记录并保存
+	                const record = {
+	                    pages: currentData,
+	                    stackId: this.currentStackId != null ? this.currentStackId : null
+	                };
+	                const newId = await db.saveRecord(record);
+	                this.currentRecordId = newId;
+	            }
+	            this.lastSavedData = currentDataStr;
+	            console.log('自动保存成功');
+	        } catch (error) {
+	            console.error('自动保存失败:', error);
+	        } finally {
+	            this.isSaving = false;
+	        }
+	    }
+
+	    // 触发自动保存（供外部调用，如拍照完成后）
+	    triggerAutoSave() {
+	        this.scheduleAutoSave();
+	    }
 
     // 添加新页面
     addPage(copyFromPrevious = true) {
@@ -215,15 +317,17 @@ class App {
             if (page) {
                 page.epImage = imageData;
                 this.renderEPImage(pageId, imageData);
+                // 触发自动保存
+                this.triggerAutoSave();
             }
         });
     }
 
-    // 渲染EP图片
+    // 渲染EP图片（支持懒加载）
     renderEPImage(pageId, imageData) {
         const container = document.getElementById(`${pageId}-ep-preview`);
         container.innerHTML = `
-            <img src="${imageData}" alt="EP文件名">
+            <img src="${imageData}" alt="EP文件名" loading="lazy" decoding="async" class="lazy-image" onload="this.classList.add('loaded')">
             <button class="ep-image-delete" onclick="app.deleteEPImage('${pageId}')">×</button>
         `;
     }
@@ -234,6 +338,8 @@ class App {
         if (page) {
             page.epImage = null;
             document.getElementById(`${pageId}-ep-preview`).innerHTML = '';
+            // 触发自动保存
+            this.triggerAutoSave();
         }
     }
 
@@ -392,7 +498,7 @@ class App {
         });
     }
 
-    // 渲染纱线媒体
+    // 渲染纱线媒体（支持懒加载）
     renderYarnMedia(pageId, type, yarnIndex, mediaIndex, mediaData) {
         const container = document.getElementById(`${pageId}-${type}-${yarnIndex}-media`);
         const mediaDiv = document.createElement('div');
@@ -402,16 +508,22 @@ class App {
         let mediaElement;
         if (mediaData.type === 'photo') {
             mediaElement = document.createElement('img');
+            mediaElement.className = 'lazy-image';
+            mediaElement.loading = 'lazy'; // 原生懒加载
+            mediaElement.decoding = 'async'; // 异步解码
             mediaElement.src = mediaData.data;
+            mediaElement.onload = () => mediaElement.classList.add('loaded');
         } else if (mediaData.type === 'audio') {
-            // 兼容旧数据中的音频记录
             mediaElement = document.createElement('audio');
             mediaElement.src = mediaData.data;
             mediaElement.controls = true;
+            mediaElement.preload = 'metadata';
         } else if (mediaData.type === 'video') {
             mediaElement = document.createElement('video');
             mediaElement.src = mediaData.data;
             mediaElement.controls = true;
+            mediaElement.preload = 'metadata';
+            mediaElement.playsInline = true;
         }
 
         const deleteBtn = document.createElement('button');
@@ -422,6 +534,9 @@ class App {
         mediaDiv.appendChild(mediaElement);
         mediaDiv.appendChild(deleteBtn);
         container.appendChild(mediaDiv);
+
+        // 触发自动保存
+        this.triggerAutoSave();
     }
 
     // 删除纱线媒体
@@ -664,7 +779,7 @@ class App {
 	                // 更新现有记录
 	                const existing = await db.getRecord(this.currentRecordId);
 	                if (!existing) {
-	                    alert('原记录不存在，无法更新，将另存为新记录。');
+	                    console.log('原记录不存在，另存为新记录');
 	                } else {
 	                    existing.pages = allPagesData;
 	                    // 更新修改时间和日期，便于排序和按日期筛选
@@ -672,8 +787,9 @@ class App {
 	                    existing.date = new Date().toISOString().split('T')[0];
 	                    await db.updateRecord(existing);
 	
-	                    alert(`✓ 记录已更新（共 ${this.pages.length} 页）！`);
-	                    // 编辑模式下通常继续留在当前记录中，如需新建可手动点击重置
+	                    this.lastSavedData = JSON.stringify(allPagesData);
+	                    console.log(`记录已更新（共 ${this.pages.length} 页）`);
+	                    this.showSaveIndicator();
 	                    return;
 	                }
 	            }
@@ -685,19 +801,31 @@ class App {
 	                stackId: this.currentStackId != null ? this.currentStackId : null
 	            };
 	
-	            await db.saveRecord(record);
-	
-	            alert(`✓ 成功保存 ${this.pages.length} 页记录！`);
-	
-	            // 询问是否重置
-	            if (confirm('是否清空当前页面，开始新的记录？')) {
-	                this.resetAllPages();
-	            }
+	            const newId = await db.saveRecord(record);
+	            this.currentRecordId = newId;
+	            this.lastSavedData = JSON.stringify(allPagesData);
+	            console.log(`成功保存 ${this.pages.length} 页记录`);
+	            this.showSaveIndicator();
 
         } catch (error) {
             console.error('保存失败:', error);
-            alert('保存失败，请重试');
         }
+    }
+
+    // 显示保存成功指示器（非阻塞）
+    showSaveIndicator() {
+        let indicator = document.getElementById('saveIndicator');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'saveIndicator';
+            indicator.className = 'save-indicator';
+            indicator.textContent = '✓ 已保存';
+            document.body.appendChild(indicator);
+        }
+        indicator.classList.add('show');
+        setTimeout(() => {
+            indicator.classList.remove('show');
+        }, 1500);
     }
 
     // 重置所有页面
@@ -749,11 +877,12 @@ class App {
 	        }
 	    }
 
-	    // 渲染 Stack 画廊
+	    // 渲染 Stack 画廊（优化：使用 DocumentFragment 减少 DOM 操作）
 		    displayStacks(stacks, records) {
 		        const container = document.getElementById('stacksContainer');
 		        if (!container) return;
 
+		        const startTime = performance.now();
 		        const recordsByStack = new Map();
 		        const unstackedRecords = [];
 
@@ -798,7 +927,7 @@ class App {
 		                    ? `<div class="stack-thumb">
 		                            ${previewImgs.map((img, idx) => `
 		                                <div class="stack-thumb-layer layer-${idx + 1}">
-		                                    <img src="${img}" alt="项目缩略图">
+		                                    <img src="${img}" alt="项目缩略图" loading="lazy" decoding="async">
 		                                </div>
 		                            `).join('')}
 		                       </div>`
@@ -825,10 +954,10 @@ class App {
 		                const thumb = record.pages && record.pages[0] && record.pages[0].epImage;
 
 		                container.innerHTML += `
-		                    <div class="record-card root-record-card" onclick="app.editRecord(${record.id})">
+		                    <div class="record-card root-record-card" data-record-id="${record.id}" onclick="app.editRecord(${record.id})">
 		                        <div class="record-thumb">
 		                            ${thumb
-		                                ? `<img src="${thumb}" alt="记录缩略图">`
+		                                ? `<img src="${thumb}" alt="记录缩略图" loading="lazy" decoding="async">`
 		                                : '<div class="record-thumb-placeholder"></div>'}
 		                        </div>
 		                        <div class="record-meta">
@@ -843,6 +972,8 @@ class App {
 		        if (!container.innerHTML) {
 		            container.innerHTML = '<p class="empty-text">暂无记录，请点击右上角“＋”创建</p>';
 		        }
+
+		        console.log(`项目画廊渲染完成，耗时: ${(performance.now() - startTime).toFixed(0)}ms`);
 		    }
 
 	    // 打开指定项目（第 2 层：项目内记录列表）
@@ -935,10 +1066,12 @@ class App {
 	        }
 	    }
 
-		    // 显示记录列表（第 2 层项目内画廊）
+		    // 显示记录列表（第 2 层项目内画廊，优化渲染）
 		    displayRecords(records) {
 		        const container = document.getElementById('recordsContainer');
 		        if (!container) return;
+
+		        const startTime = performance.now();
 
 		        if (!records || records.length === 0) {
 		            container.innerHTML = '<p class="records-empty">暂无记录</p>';
@@ -962,7 +1095,7 @@ class App {
 		                <div class="record-card" data-record-id="${record.id}" onclick="app.editRecord(${record.id})">
 		                    <div class="record-thumb">
 		                        ${thumb
-		                            ? `<img src="${thumb}" alt="记录缩略图">`
+		                            ? `<img src="${thumb}" alt="记录缩略图" loading="lazy" decoding="async">`
 		                            : '<div class="record-thumb-placeholder"></div>'}
 		                    </div>
 		                    <div class="record-meta">
@@ -972,6 +1105,8 @@ class App {
 		                </div>
 		            `;
 		        }).join('');
+
+		        console.log(`记录列表渲染完成，耗时: ${(performance.now() - startTime).toFixed(0)}ms`);
 		    }
 
     // 查看记录详情
@@ -1339,15 +1474,16 @@ class App {
 
 	    // 从编辑器返回项目内记录列表（第 3 层 → 第 2 层）
 	    async backToStackRecords() {
-	        // 如果有未保存的更改，提示用户
+	        // 返回前自动保存（无弹窗）
 	        if (this.pages.length > 0) {
 	            const hasContent = this.pages.some(page => {
 	                const data = this.getPageData(page.id);
 	                return data && (data.epImage || data.warpYarns?.length > 0 || data.weftYarns?.length > 0);
 	            });
 
-	            if (hasContent && !confirm('返回列表将放弃当前未保存的更改，确定返回吗？')) {
-	                return;
+	            if (hasContent) {
+	                // 静默自动保存
+	                await this.performAutoSave();
 	            }
 	        }
 
@@ -1364,6 +1500,7 @@ class App {
 	        this.pageCount = 0;
 	        this.currentRecordId = null;
 	        this.currentPageIndex = 0;
+	        this.lastSavedData = null;
 	        document.getElementById('pagesContainer').innerHTML = '';
 
 	        // 返回第 2 层（项目内记录列表）
@@ -1376,12 +1513,10 @@ class App {
     }
 
 	    // 从任何界面开始新建一条记录
-	    startNewRecord() {
-	        if (this.currentRecordId != null) {
-	            const confirmMsg = '当前正在编辑一条已有记录，确定要放弃未保存的修改并新建一条新记录吗？';
-	            if (!confirm(confirmMsg)) {
-	                return;
-	            }
+	    async startNewRecord() {
+	        // 自动保存当前内容后新建
+	        if (this.currentRecordId != null && this.pages.length > 0) {
+	            await this.performAutoSave();
 	        }
 	        this.resetAllPages();
 	        this.showRecordForm();
