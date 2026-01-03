@@ -31,7 +31,7 @@ body {
     background: linear-gradient(135deg, #4A5568 0%, #A0AEC0 100%);
     min-height: 100vh;
     padding: 10px;
-    font-size: 16px;
+    font-size: 17px;
     color: var(--text-primary);
     overflow-x: hidden;
 }
@@ -40,6 +40,18 @@ body {
     max-width: 100%;
     margin: 0 auto;
     padding: 0;
+}
+
+/* 页面滑动容器：同一 EP 横向翻页 */
+#pagesContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
 }
 
 /* 毛玻璃效果卡片 */
@@ -55,7 +67,8 @@ body {
 }
 
 /* 页面容器 */
-.page-container {
+.page-container,
+.page-wrapper {
     background: var(--bg-secondary);
     backdrop-filter: blur(30px) saturate(120%);
     -webkit-backdrop-filter: blur(30px) saturate(120%);
@@ -67,6 +80,12 @@ body {
     position: relative;
 }
 
+/* 每一页占满可视宽度，配合横向滑动 */
+#pagesContainer .page-wrapper {
+    min-width: 100%;
+    scroll-snap-align: start;
+}
+
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -76,14 +95,16 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-.page-number {
+.page-number,
+.page-title {
     font-size: 18px;
     font-weight: 600;
     color: var(--primary-color);
     letter-spacing: -0.3px;
 }
 
-.delete-page-btn {
+.delete-page-btn,
+.page-delete {
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -100,14 +121,15 @@ body {
     transition: all 0.2s ease;
 }
 
-.delete-page-btn:active {
+.delete-page-btn:active,
+.page-delete:active {
     transform: scale(0.92);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* 区块标题 */
 .section-title {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 8px;
@@ -148,6 +170,12 @@ body {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: var(--shadow-md);
+}
+
+.ep-image-preview img {
+    width: min(33.33vw, 100%);
+    height: auto;
+    display: block;
 }
 
 .yarn-controls button {
@@ -196,7 +224,7 @@ body {
     padding: 10px 32px 10px 12px;
     border: 1px solid var(--border-color);
     border-radius: 10px;
-    font-size: 15px;
+    font-size: 16px;
     background: var(--bg-secondary);
     backdrop-filter: blur(10px);
     color: var(--text-primary);
@@ -324,7 +352,7 @@ body {
     padding: 12px 8px;
     border: none;
     border-radius: 14px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
@@ -591,7 +619,7 @@ body {
 
 /* 纱线标签 */
 .yarn-label {
-    font-size: 13px;
+	font-size: 14px;
     font-weight: 600;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -602,10 +630,10 @@ body {
 .yarn-input {
     flex: 1;
     min-width: 0;
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 18px;
-    font-size: 14px;
+	padding: 8px 12px;
+	border: 1px solid var(--border-color);
+	border-radius: 18px;
+	font-size: 15px;
     background: var(--bg-secondary);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -621,7 +649,7 @@ body {
 
 .yarn-input::placeholder {
     color: var(--text-tertiary);
-    font-size: 13px;
+	font-size: 14px;
 }
 
 /* ============================================
@@ -704,7 +732,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 8px;

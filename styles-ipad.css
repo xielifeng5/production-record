@@ -31,7 +31,7 @@ body {
     background: linear-gradient(135deg, #4A5568 0%, #A0AEC0 100%);
     min-height: 100vh;
     padding: 20px;
-    font-size: 17px;
+    font-size: 19px; /* 字体整体放大，iPad 上更清晰 */
     color: var(--text-primary);
     overflow-x: hidden;
 }
@@ -40,6 +40,18 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0;
+}
+
+/* 页面滑动容器：同一 EP 横向翻页 */
+#pagesContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 16px;
 }
 
 /* 毛玻璃效果卡片 */
@@ -55,7 +67,8 @@ body {
 }
 
 /* 页面容器 */
-.page-container {
+.page-container,
+.page-wrapper {
     background: var(--bg-secondary);
     backdrop-filter: blur(40px) saturate(120%);
     -webkit-backdrop-filter: blur(40px) saturate(120%);
@@ -67,6 +80,12 @@ body {
     position: relative;
 }
 
+/* 每一页占满可视宽度，配合横向滑动 */
+#pagesContainer .page-wrapper {
+    min-width: 100%;
+    scroll-snap-align: start;
+}
+
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -76,14 +95,16 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-.page-number {
+.page-number,
+.page-title {
     font-size: 24px;
     font-weight: 700;
     color: var(--primary-color);
     letter-spacing: -0.5px;
 }
 
-.delete-page-btn {
+.delete-page-btn,
+.page-delete {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -100,19 +121,21 @@ body {
     transition: all 0.2s ease;
 }
 
-.delete-page-btn:hover {
+.delete-page-btn:hover,
+.page-delete:hover {
     transform: scale(1.05);
     box-shadow: var(--shadow-md);
 }
 
-.delete-page-btn:active {
+.delete-page-btn:active,
+.page-delete:active {
     transform: scale(0.93);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* 区块标题 */
 .section-title {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 12px;
@@ -122,6 +145,20 @@ body {
 /* EP图片上传区域 */
 .ep-upload-section {
     margin-bottom: 20px;
+}
+
+.ep-image-preview {
+    margin-top: 12px;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.ep-image-preview img {
+    width: min(33.33vw, 100%);
+    height: auto;
+    display: block;
 }
 
 .upload-btn {
@@ -211,7 +248,7 @@ body {
 
 /* 纱线标签 */
 .yarn-label {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -225,7 +262,7 @@ body {
     padding: 12px 18px;
     border: 1px solid var(--border-color);
     border-radius: 22px;
-    font-size: 16px;
+    font-size: 18px;
     background: var(--bg-secondary);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
@@ -241,7 +278,7 @@ body {
 
 .yarn-input::placeholder {
     color: var(--text-tertiary);
-    font-size: 15px;
+    font-size: 17px;
 }
 
 /* ============================================
@@ -363,7 +400,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 10px;
@@ -393,7 +430,7 @@ body {
     padding: 14px 40px 14px 16px;
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    font-size: 17px;
+    font-size: 19px;
     background: var(--bg-secondary);
     backdrop-filter: blur(15px);
     color: var(--text-primary);
@@ -536,7 +573,7 @@ body {
     padding: 16px 20px;
     border: none;
     border-radius: 16px;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 600;
     cursor: pointer;
     display: flex;

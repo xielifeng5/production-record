@@ -77,50 +77,50 @@
         </div>
     </div>
     
-    <!-- 隐藏的文件输入 -->
-    <input type="file" id="epImageInput" accept="image/*" style="display: none;">
-    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
-    <input type="file" id="videoInput" accept="video/*" capture="environment" style="display: none;">
+	    <!-- 隐藏的文件输入 -->
+	    <input type="file" id="epImageInput" accept="image/*" style="display: none;">
+	    <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
+	    <input type="file" id="videoInput" accept="video/*" capture="environment" style="display: none;">
+	    <input type="file" id="audioInput" accept="audio/*" capture="microphone" style="display: none;">
     
     <!-- 脚本文件 -->
     <script src="database.js"></script>
     <script src="media.js"></script>
     <script src="app.js"></script>
     
-    <script>
-        // 初始化应用
-        const app = new ProductionRecordApp();
+	    <script>
+	        // 移动端额外增强逻辑（App 实例在 app.js 中已创建为全局常量 app）
 
-        // 点击模态框外部关闭
-        document.getElementById('modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                app.closeModal();
-            }
-        });
-
-        // 防止页面滚动时的橡皮筋效果（iOS）
-        document.body.addEventListener('touchmove', function(e) {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                const scrollable = e.target.closest('.modal-content, #recordsContainer');
-                if (!scrollable) {
-                    e.preventDefault();
-                }
-            }
-        }, { passive: false });
-
-        // 注册Service Worker (PWA支持)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('✅ Service Worker 已注册'))
-                    .catch(err => console.log('❌ Service Worker 注册失败:', err));
-            });
-        }
-
-        // 显示设备信息（调试用）
-        console.log('屏幕尺寸:', window.innerWidth, 'x', window.innerHeight);
-        console.log('设备像素比:', window.devicePixelRatio);
-    </script>
+	        // 点击模态框外部关闭（精确到模态框区域）
+	        document.getElementById('modal').addEventListener('click', function(e) {
+	            if (e.target === this) {
+	                app.closeModal();
+	            }
+	        });
+	
+	        // 防止页面滚动时的橡皮筋效果（iOS）
+	        document.body.addEventListener('touchmove', function(e) {
+	            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+	                const scrollable = e.target.closest('.modal-content, #recordsContainer');
+	                if (!scrollable) {
+	                    e.preventDefault();
+	                }
+	            }
+	        }, { passive: false });
+	
+	        // 注册Service Worker (PWA支持)
+	        if ('serviceWorker' in navigator) {
+	            window.addEventListener('load', () => {
+	                navigator.serviceWorker.register('./service-worker.js')
+	                    .then(reg => console.log('✅ Service Worker 已注册'))
+	                    .catch(err => console.log('❌ Service Worker 注册失败:', err));
+	            });
+	        }
+	
+	        // 显示设备信息（调试用）
+	        console.log('屏幕尺寸:', window.innerWidth, 'x', window.innerHeight);
+	        console.log('设备像素比:', window.devicePixelRatio);
+	    </script>
 </body>
 </html>
 

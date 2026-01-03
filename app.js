@@ -106,7 +106,7 @@ class App {
             <div class="form-row">
                 <div class="row-label">⚠️ 生产问题记录</div>
                 <div class="inline-controls">
-                    <button class="btn btn-warning" onclick="app.recordProblemAudio('${pageData.id}')">🎤 录音</button>
+                    <button class="btn btn-warning" onclick="app.captureProblemPhoto('${pageData.id}')">📷 上传图片</button>
                     <button class="btn btn-warning" onclick="app.recordProblemVideo('${pageData.id}')">🎥 录像</button>
                 </div>
                 <div id="${pageData.id}-problem-media" class="media-preview"></div>
@@ -124,6 +124,14 @@ class App {
         `;
 
         container.appendChild(pageDiv);
+
+        // 新增页后自动滚动到该页，配合横向滑动更方便
+        try {
+            pageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+        } catch (e) {
+            // 部分旧浏览器不支持 scrollIntoView 选项，忽略错误
+            pageDiv.scrollIntoView();
+        }
 
         // 渲染EP图片（如果有）
         if (pageData.epImage) {
@@ -151,25 +159,48 @@ class App {
         }
     }
 
-    // 上传EP图片
-    uploadEPImage(pageId) {
+    // 通用图片选择（与EP文件上传相同的相机/相册调用方式）
+    pickImage(callback) {
         const input = document.getElementById('epImageInput');
+        if (!input) {
+            alert('当前页面缺少图片输入控件，请联系管理员检查 epImageInput 元素。');
+            return;
+        }
+
+        // 仅接收图片，让浏览器提供“拍照 / 相册 / 文件”等入口
+        input.setAttribute('accept', 'image/*');
+
         input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const page = this.pages.find(p => p.id === pageId);
-                    if (page) {
-                        page.epImage = event.target.result;
-                        this.renderEPImage(pageId, event.target.result);
-                    }
-                };
-                reader.readAsDataURL(file);
+            const file = e.target.files && e.target.files[0];
+            if (!file) {
+                input.value = '';
+                return;
             }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if (typeof callback === 'function') {
+                    callback(event.target.result);
+                }
+            };
+            reader.readAsDataURL(file);
+
+            // 重置输入，避免后续选择同一图片时 onchange 不触发
             input.value = '';
         };
+
         input.click();
+    }
+
+    // 上传EP图片（基于统一的图片选择逻辑）
+    uploadEPImage(pageId) {
+        this.pickImage((imageData) => {
+            const page = this.pages.find(p => p.id === pageId);
+            if (page) {
+                page.epImage = imageData;
+                this.renderEPImage(pageId, imageData);
+            }
+        });
     }
 
     // 渲染EP图片
@@ -306,10 +337,9 @@ class App {
         });
     }
 
-    // 拍摄纱线照片
+    // 拍摄纱线照片（统一使用EP同款图片选择方式）
     captureYarnPhoto(pageId, type, index) {
-        this.currentTargetId = { pageId, type, index };
-        mediaHandler.capturePhoto((mediaData) => {
+        this.pickImage((imageData) => {
             const page = this.pages.find(p => p.id === pageId);
             if (!page) return;
 
@@ -317,6 +347,11 @@ class App {
             if (!yarns || !yarns[index]) return;
 
             if (!yarns[index].media) yarns[index].media = [];
+            const mediaData = {
+                type: 'photo',
+                data: imageData,
+                timestamp: new Date().getTime()
+            };
             yarns[index].media.push(mediaData);
 
             const mediaIndex = yarns[index].media.length - 1;
@@ -324,10 +359,9 @@ class App {
         });
     }
 
-    // 录制纱线音频
+    // 录制纱线视频（原录音功能升级为录像）
     recordYarnAudio(pageId, type, index) {
-        this.currentTargetId = { pageId, type, index };
-        mediaHandler.recordAudio((mediaData) => {
+        mediaHandler.recordVideo((mediaData) => {
             const page = this.pages.find(p => p.id === pageId);
             if (!page) return;
 
@@ -354,7 +388,12 @@ class App {
             mediaElement = document.createElement('img');
             mediaElement.src = mediaData.data;
         } else if (mediaData.type === 'audio') {
+            // 兼容旧数据中的音频记录
             mediaElement = document.createElement('audio');
+            mediaElement.src = mediaData.data;
+            mediaElement.controls = true;
+        } else if (mediaData.type === 'video') {
+            mediaElement = document.createElement('video');
             mediaElement.src = mediaData.data;
             mediaElement.controls = true;
         }
@@ -387,13 +426,18 @@ class App {
         });
     }
 
-    // 录制问题音频
-    recordProblemAudio(pageId) {
-        mediaHandler.recordAudio((mediaData) => {
+    // 上传问题图片（原录音按钮改为图片上传）
+    captureProblemPhoto(pageId) {
+        this.pickImage((imageData) => {
             const page = this.pages.find(p => p.id === pageId);
             if (!page) return;
 
             if (!page.problems) page.problems = [];
+            const mediaData = {
+                type: 'photo',
+                data: imageData,
+                timestamp: new Date().getTime()
+            };
             page.problems.push(mediaData);
 
             this.renderProblemMedia(pageId, page.problems.length - 1, mediaData);
@@ -420,7 +464,11 @@ class App {
         mediaDiv.className = 'media-item';
 
         let mediaElement;
-        if (mediaData.type === 'audio') {
+        if (mediaData.type === 'photo') {
+            mediaElement = document.createElement('img');
+            mediaElement.src = mediaData.data;
+        } else if (mediaData.type === 'audio') {
+            // 兼容旧的音频问题记录
             mediaElement = document.createElement('audio');
             mediaElement.src = mediaData.data;
             mediaElement.controls = true;
@@ -454,13 +502,18 @@ class App {
         });
     }
 
-    // 拍摄成品照片
+    // 拍摄成品照片（统一使用EP同款图片选择方式）
     captureProductPhoto(pageId) {
-        mediaHandler.capturePhoto((mediaData) => {
+        this.pickImage((imageData) => {
             const page = this.pages.find(p => p.id === pageId);
             if (!page) return;
 
             if (!page.products) page.products = [];
+            const mediaData = {
+                type: 'photo',
+                data: imageData,
+                timestamp: new Date().getTime()
+            };
             page.products.push(mediaData);
 
             this.renderProductMedia(pageId, page.products.length - 1, mediaData);
@@ -683,7 +736,7 @@ class App {
                             ${page.epImage ? `
                                 <div style="margin-bottom: 15px;">
                                     <h4>📄 EP文件名图片</h4>
-                                    <img src="${page.epImage}" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
+                                    <img src="${page.epImage}" style="width: 33.33vw; max-width: 100%; height: auto; max-height: 300px; border-radius: 8px;">
                                 </div>
                             ` : ''}
 

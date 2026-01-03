@@ -2,6 +2,7 @@
 const CACHE_NAME = 'production-record-v1';
 const urlsToCache = [
     './',
+	'./选择版本.html',
     './index-mobile.html',
     './styles-mobile.css',
     './styles-ipad.css',
